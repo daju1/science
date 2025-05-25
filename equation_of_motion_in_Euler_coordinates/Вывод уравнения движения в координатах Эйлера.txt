@@ -1,0 +1,1692 @@
+# Вывод уравнения движения сплошной среды в координатах Эйлера
+# 
+# А.Ю.Дроздов
+# 
+# За основу нашего вывода берём формулу (7) главы 2.9 теории упругости Новацкого, стр. 64.
+# 
+# rho*diff(v[i], t) = X[i] + sum(diff(sigma[ji], xi[i]), j = 1 .. 3);
+# 
+# В левой части материальная (местная) производная скорости материальной частицы по времени.
+# 
+# Для преобразования материальной производной используем уравнение (5) главы 2.8 той же книги, стр. 60
+# 
+# diff(v[i](xi, t), t) = diff(v[i](xi, t), t) + sum(v[j](xi, t)*diff(v[i](xi, t), xi[j]), j = 1 .. 3);
+# 
+# Здесь первый член правой части описывает изменение во времени функции v[i](xi, t); при постоянном ѕ т.е. при неизменном положении в пространстве, а не для одной и той же материальной частицы. Второе слагаемое правой части называется конвективной производной. Здесь нужно иметь в виду, что формула (5) главы 2.8 Новацким получена "ограничиваясь величинами первого порядка малости по dt" разложения Тейлора от 
+# 
+# (v[i](dt*v[j] + xi[j], t + dt) - v[i](xi[j], t))/dt;
+# То есть если ограничиться величинами хотя бы второго порядка малости по dt, то в уравнении движения сплошной среды появится ещё один источник нелинейности.
+# 
+# О скорости материальной частицы в описании Эйлера Новацкий пишет следующее: "В этом описании движение тела представляестя векторным полем v[i](xi[1], xi[2], xi[3], t);, связанным с мгновенным положением материальной частицы." Однако, к сожалению, в работе Новацкого отсутсвует взаимосвязь скорости со смещением в описании Эйлера. Попробуем восполнить этот пробел. Для этого применим рассуждение Новацкого о вычислении материальной производной такой характеристики материальной среды как начальная координата частицы среды x[i](xi[1], xi[2], xi[3], t);
+# 
+# 
+# v[i](xi[1], xi[2], xi[3], t) = diff(x[i](xi[1], xi[2], xi[3], t), t) and diff(x[i](xi[1], xi[2], xi[3], t), t) = diff(x[i](xi[1], xi[2], xi[3], t), t) + sum(v[j](xi[1], xi[2], xi[3], t)*diff(x[i](xi[1], xi[2], xi[3], t), xi[j]), j = 1 .. 3);
+# Первое слагаемое правой части представляет собой изменение во времени функции x[i](xi[1], xi[2], xi[3], t); (начальной координаты частиц среды) при неизменном положении в пространстве, а не для одной и той же материальной частицы. Но поскольку мы выводим уравнение движения сплошной среды, в основе которого лежит второй закон Ньютона, нам необходимо изменение во времени координат частиц среды именно для одной и той же материальной частицы. Именно в связи с этим возникает необходимость второго слагаемого: материальной (конвективной, субстанционной) производной.
+# 
+# Переносим конвективную производную в левую часть
+# 
+# v[i](xi[1], xi[2], xi[3], t) - sum(v[j](xi[1], xi[2], xi[3], t)*diff(x[i](xi[1], xi[2], xi[3], t), xi[j]), j = 1 .. 3) = diff(x[i](xi[1], xi[2], xi[3], t), t);
+# 
+# 
+# Раскрываем знак суммы
+# 
+# 
+# v[i](xi[1], xi[2], xi[3], t) - v[1](xi[1], xi[2], xi[3], t)*diff(x[i](xi[1], xi[2], xi[3], t), xi[1]) - v[2](xi[1], xi[2], xi[3], t)*diff(x[i](xi[1], xi[2], xi[3], t), xi[2]) - v[3](xi[1], xi[2], xi[3], t)*diff(x[i](xi[1], xi[2], xi[3], t), xi[3]) = diff(x[i](xi[1], xi[2], xi[3], t), t);
+# 
+# Раскрывая индекс i, переписываем в форме системы уравнений
+# 
+# 
+# v[1](xi[1], xi[2], xi[3], t) - v[1](xi[1], xi[2], xi[3], t)*diff(x[1](xi[1], xi[2], xi[3], t), xi[1]) - v[2](xi[1], xi[2], xi[3], t)*diff(x[1](xi[1], xi[2], xi[3], t), xi[2]) - v[3](xi[1], xi[2], xi[3], t)*diff(x[1](xi[1], xi[2], xi[3], t), xi[3]) = diff(x[1](xi[1], xi[2], xi[3], t), t);
+# 
+# v[2](xi[1], xi[2], xi[3], t) - v[1](xi[1], xi[2], xi[3], t)*diff(x[2](xi[1], xi[2], xi[3], t), xi[1]) - v[2](xi[1], xi[2], xi[3], t)*diff(x[2](xi[1], xi[2], xi[3], t), xi[2]) - v[3](xi[1], xi[2], xi[3], t)*diff(x[2](xi[1], xi[2], xi[3], t), xi[3]) = diff(x[2](xi[1], xi[2], xi[3], t), t);
+# 
+# v[3](xi[1], xi[2], xi[3], t) - v[1](xi[1], xi[2], xi[3], t)*diff(x[3](xi[1], xi[2], xi[3], t), xi[1]) - v[2](xi[1], xi[2], xi[3], t)*diff(x[3](xi[1], xi[2], xi[3], t), xi[2]) - v[3](xi[1], xi[2], xi[3], t)*diff(x[3](xi[1], xi[2], xi[3], t), xi[3]) = diff(x[3](xi[1], xi[2], xi[3], t), t);
+# 
+# В матричной форме 
+# 
+# Matrix(3, 3, [[1 - diff(x[1](xi[1], xi[2], xi[3], t), xi[1]), -diff(x[1](xi[1], xi[2], xi[3], t), xi[2]), -diff(x[1](xi[1], xi[2], xi[3], t), xi[3])], [-diff(x[2](xi[1], xi[2], xi[3], t), xi[1]), 1 - diff(x[2](xi[1], xi[2], xi[3], t), xi[2]), -diff(x[2](xi[1], xi[2], xi[3], t), xi[3])], [-diff(x[3](xi[1], xi[2], xi[3], t), xi[1]), -diff(x[3](xi[1], xi[2], xi[3], t), xi[2]), 1 - diff(x[3](xi[1], xi[2], xi[3], t), xi[3])]])*Vector[column](3, [v[1](xi[1], xi[2], xi[3], t), v[2](xi[1], xi[2], xi[3], t), v[3](xi[1], xi[2], xi[3], t)]) = Vector[column](3, [diff(x[1](xi[1], xi[2], xi[3], t), t), diff(x[2](xi[1], xi[2], xi[3], t), t), diff(x[3](xi[1], xi[2], xi[3], t), t)]);
+# 
+# 
+# Выразим координату начальной точки среды через перемещения
+# 
+# Для описания Эйлера
+# 
+# x[i](xi[1], xi[2], xi[3], t) = xi[i] - u[1](xi[1], xi[2], xi[3], t);
+# 
+# Дифференцируем ее по координате Эйлера
+# 
+# diff(x[i](xi[1], xi[2], xi[3], t), xi[j]) = delta[ij] - diff(u[i](xi[1], xi[2], xi[3], t), xi[j]);
+# 
+# 
+# Дифференцируем по времени
+# diff(x[i](xi[1], xi[2], xi[3], t), t) = -diff(u[i](xi[1], xi[2], xi[3], t), t);
+# 
+# Подставляя в матричную систему уравнений, имеем
+# 
+# Matrix(3, 3, [[diff(u[1](xi[1], xi[2], xi[3], t), xi[1]), diff(u[1](xi[1], xi[2], xi[3], t), xi[2]), diff(u[1](xi[1], xi[2], xi[3], t), xi[3])], [diff(u[2](xi[1], xi[2], xi[3], t), xi[1]), diff(u[2](xi[1], xi[2], xi[3], t), xi[2]), diff(u[2](xi[1], xi[2], xi[3], t), xi[3])], [diff(u[3](xi[1], xi[2], xi[3], t), xi[1]), diff(u[3](xi[1], xi[2], xi[3], t), xi[2]), diff(u[3](xi[1], xi[2], xi[3], t), xi[3])]])*Vector[column](3, [v[1](xi[1], xi[2], xi[3], t), v[2](xi[1], xi[2], xi[3], t), v[3](xi[1], xi[2], xi[3], t)]) = Vector[column](3, [-diff(u[1](xi[1], xi[2], xi[3], t), t), -diff(u[2](xi[1], xi[2], xi[3], t), t), -diff(u[3](xi[1], xi[2], xi[3], t), t)]);
+# 
+# Решая систему, получаем выражение для скорости материальных частиц в зависимости от смещения в описании Эйлера
+# 
+# 
+> restart;
+> with(linalg);
+# 
+# 
+> vvv := linsolve(Matrix(3, 3, [[diff(u[1](xi[1], xi[2], xi[3], t), xi[1]), diff(u[1](xi[1], xi[2], xi[3], t), xi[2]), diff(u[1](xi[1], xi[2], xi[3], t), xi[3])], [diff(u[2](xi[1], xi[2], xi[3], t), xi[1]), diff(u[2](xi[1], xi[2], xi[3], t), xi[2]), diff(u[2](xi[1], xi[2], xi[3], t), xi[3])], [diff(u[3](xi[1], xi[2], xi[3], t), xi[1]), diff(u[3](xi[1], xi[2], xi[3], t), xi[2]), diff(u[3](xi[1], xi[2], xi[3], t), xi[3])]]), Vector[column](3, [-diff(u[1](xi[1], xi[2], xi[3], t), t), -diff(u[2](xi[1], xi[2], xi[3], t), t), -diff(u[3](xi[1], xi[2], xi[3], t), t)]));
+# 
+> v[1](xi[1], xi[2], xi[3], t) := vvv[1];
+> v[2](xi[1], xi[2], xi[3], t) := vvv[2];
+# 
+> v[3](xi[1], xi[2], xi[3], t) := vvv[3];
+# 
+# 
+# Решение в общем виде, полученное Методом Крамера
+# 
+> v[1](xi[1], xi[2], xi[3], t);
+> v[2](xi[1], xi[2], xi[3], t);
+> v[3](xi[1], xi[2], xi[3], t);
+# 
+# 
+# Проблема полученных формул, кроме их громоздкости, однако та, что если перемещения по одной или по двум координатам равны нулю, например в случае плоской волны (продольной или поперечной) то детерминант матрицы diff(u__i, xi[j]); будет равен нулю, что приведёт к нулю в знаменателе. Поэтому в дальнной работе ниже представлена процедура вычисления скорости материальной частицы 
+# 
+# Приступаем к непосредственному выводу уравнения движения
+> 
+;
+# 
+> restart;
+> with(Physics[Vectors]);
+> Setup(mathematicalnotation = true);
+> with(LinearAlgebra);
+ [&x, +, ., ChangeBasis, ChangeCoordinates, Component, Curl, 
+
+   DirectionalDiff, Divergence, Gradient, Identify, Laplacian, 
+
+   Nabla, Norm, Setup, diff]
+
+
+;
+# 
+# координаты Эйлера
+# 
+> xi := _i*xi__i + _j*xi__j + _k*xi__k;
+> xi;
+                 _i xi__i + _j xi__j + _k xi__k
+
+;
+# вектор перемещения
+# 
+> u := u__i(xi__i, xi__j, xi__k, t)*_i + u__j(xi__i, xi__j, xi__k, t)*_j + u__k(xi__i, xi__j, xi__k, t)*_k;
+> u;
+u__i(xi__i, xi__j, xi__k, t) _i + u__j(xi__i, xi__j, xi__k, t) _j
+
+   + u__k(xi__i, xi__j, xi__k, t) _k
+
+
+;
+# 
+# 
+# 
+> 
+;
+# 
+# Заполняем матрицу производной смещения по координатам Эйлера
+# 
+> `du_d&xi;` := Matrix(3);
+> for i to 3 do
+>     for j to 3 do `du_d&xi;`[i, j] := diff(Component(u, i), Component(xi, j)); end do;
+> end do;
+> `du_d&xi;`;
+           [[   d                                  
+           [[------- u__i(xi__i, xi__j, xi__k, t), 
+           [[ dxi__i                               
+
+                d                                  
+             ------- u__i(xi__i, xi__j, xi__k, t), 
+              dxi__j                               
+
+                d                                ]  [
+             ------- u__i(xi__i, xi__j, xi__k, t)], [
+              dxi__k                             ]  [
+
+                d                                  
+             ------- u__j(xi__i, xi__j, xi__k, t), 
+              dxi__i                               
+
+                d                                  
+             ------- u__j(xi__i, xi__j, xi__k, t), 
+              dxi__j                               
+
+                d                                ]  [
+             ------- u__j(xi__i, xi__j, xi__k, t)], [
+              dxi__k                             ]  [
+
+                d                                  
+             ------- u__k(xi__i, xi__j, xi__k, t), 
+              dxi__i                               
+
+                d                                  
+             ------- u__k(xi__i, xi__j, xi__k, t), 
+              dxi__j                               
+
+                d                                ]]
+             ------- u__k(xi__i, xi__j, xi__k, t)]]
+              dxi__k                             ]]
+
+
+;
+# 
+# 
+# Вектор правых частей - производня смещения по времени
+# 
+> minus_du_dt := Vector(3);
+> for i to 3 do
+>     minus_du_dt[i] := -diff(Component(u, i), t);
+> end do;
+> minus_du_dt;
+              [  d                              ]
+              [---- u__i(xi__i, xi__j, xi__k, t)]
+              [  dt                             ]
+              [                                 ]
+              [  d                              ]
+              [---- u__j(xi__i, xi__j, xi__k, t)]
+              [  dt                             ]
+              [                                 ]
+              [  d                              ]
+              [---- u__k(xi__i, xi__j, xi__k, t)]
+              [  dt                             ]
+
+;
+# 
+# 
+# 
+# Определяем процедуру определения скорости материальных частиц в зависимости от смещения в описании Эйлера
+# 
+> calc_material_vel := proc(`du_d&xi;`, minus_du_dt) local vel, i; description "Calculate velocity of material particles in Eiler coordinates"; vel := LinearSolve(`du_d&xi;`, minus_du_dt); for i to 3 do if 0 = `du_d&xi;`[1, i] and 0 = `du_d&xi;`[2, i] and 0 = `du_d&xi;`[3, i] then vel := subs(vel[i] = 0, vel); end if; end do; vel; end proc;
+# 
+# 
+> 
+;
+> v := calc_material_vel(`du_d&xi;`, minus_du_dt);
+# 
+# 
+# В общем случае
+# 
+# 
+# 
+# Для конкретного случая из общего выражения для скорости 
+# 
+# LinearSolve(Matrix(3, 3, [[diff(u__i(xi__i, xi__j, xi__k, t), xi__i), diff(u__i(xi__i, xi__j, xi__k, t), xi__j), diff(u__i(xi__i, xi__j, xi__k, t), xi__k)], [diff(u__j(xi__i, xi__j, xi__k, t), xi__i), diff(u__j(xi__i, xi__j, xi__k, t), xi__j), diff(u__j(xi__i, xi__j, xi__k, t), xi__k)], [diff(u__k(xi__i, xi__j, xi__k, t), xi__i), diff(u__k(xi__i, xi__j, xi__k, t), xi__j), diff(u__k(xi__i, xi__j, xi__k, t), xi__k)]]), Vector[column](3, [-diff(u__i(xi__i, xi__j, xi__k, t), t), -diff(u__j(xi__i, xi__j, xi__k, t), t), -diff(u__k(xi__i, xi__j, xi__k, t), t)]));
+# 
+# 
+# 
+# Скорость среды в координатах Эйлера для плоской волны вычисляем более упрощённо
+# 
+# 
+# Например.
+# 
+# 
+# Для случая плоской продольной волны, распространяющейся вдоль оси X,  получаем
+# 
+# LinearSolve(Matrix(3, 3, [[diff(u__i(xi__i, xi__j, xi__k, t), xi__i), 0, 0], [0, 0, 0], [0, 0, 0]]), Vector[column](3, [-diff(u__i(xi__i, xi__j, xi__k, t), t), 0, 0]));
+# 
+# 
+> `du_d&xi;_x_prodoln` := Matrix(3);
+> `du_d&xi;_x_prodoln`[1, 1] := diff(Component(u, 1), Component(xi, 1));
+> `du_d&xi;_x_prodoln`;
+          [   d                                      ]
+          [------- u__i(xi__i, xi__j, xi__k, t)  0  0]
+          [ dxi__i                                   ]
+          [                                          ]
+          [                 0                    0  0]
+          [                                          ]
+          [                 0                    0  0]
+
+;
+# 
+# 
+> minus_du_dt_x_prodoln := Vector(3);
+> minus_du_dt_x_prodoln[1] := -diff(Component(u, 1), t);
+> minus_du_dt_x_prodoln;
+              [  d                              ]
+              [---- u__i(xi__i, xi__j, xi__k, t)]
+              [  dt                             ]
+              [                                 ]
+              [                0                ]
+              [                                 ]
+              [                0                ]
+
+;
+> v_x_prodoln := calc_material_vel(`du_d&xi;_x_prodoln`, minus_du_dt_x_prodoln);
+                   [     d                                ]
+                   [    --- u__i(xi__i, xi__j, xi__k, t)  ]
+                   [     dt                               ]
+                   [- ------------------------------------]
+                   [     d                                ]
+    v_x_prodoln := [  ------- u__i(xi__i, xi__j, xi__k, t)]
+                   [   dxi__i                             ]
+                   [                                      ]
+                   [                  0                   ]
+                   [                                      ]
+                   [                  0                   ]
+
+;
+# 
+# 
+# 
+# 
+# 
+# Для случая плоской поперечной волны, распространяющейся вдоль X, колебания частиц среды в которой происходят вдоль оси Z
+# 
+# 
+# LinearSolve(Matrix(3, 3, [[0, 0, 0], [0, 0, 0], [diff(u__k(xi__i, xi__j, xi__k, t), xi__i), 0, 0]]), Vector[column](3, [0, 0, -diff(u__k(xi__i, xi__j, xi__k, t), t)]));
+# 
+# 
+> `du_d&xi;_x_poperech_z` := Matrix(3);
+> `du_d&xi;_x_poperech_z`[3, 1] := diff(Component(u, 3), Component(xi, 1));
+> `du_d&xi;_x_poperech_z`;
+          [                 0                    0  0]
+          [                                          ]
+          [                 0                    0  0]
+          [                                          ]
+          [   d                                      ]
+          [------- u__k(xi__i, xi__j, xi__k, t)  0  0]
+          [ dxi__i                                   ]
+
+;
+# 
+> minus_du_dt_x_poperech_z := Vector(3);
+> minus_du_dt_x_poperech_z[3] := -diff(Component(u, 3), t);
+> minus_du_dt_x_poperech_z;
+              [                0                ]
+              [                                 ]
+              [                0                ]
+              [                                 ]
+              [  d                              ]
+              [---- u__k(xi__i, xi__j, xi__k, t)]
+              [  dt                             ]
+
+;
+> v_x_poperech_z := calc_material_vel(`du_d&xi;_x_poperech_z`, minus_du_dt_x_poperech_z);
+                     [     d                                ]
+                     [    --- u__k(xi__i, xi__j, xi__k, t)  ]
+                     [     dt                               ]
+                     [- ------------------------------------]
+                     [     d                                ]
+   v_x_poperech_z := [  ------- u__k(xi__i, xi__j, xi__k, t)]
+                     [   dxi__i                             ]
+                     [                                      ]
+                     [                  0                   ]
+                     [                                      ]
+                     [                  0                   ]
+
+;
+# 
+# А это пример поперечной волны, распространяющейся вдоль оси Y, колебания частиц среды, в которой происходят вдоль оси X
+> calc_material_vel(Matrix(3, 3, [[0, -A*k*sin(k*xi__j + omega*t + delta), 0], [0, 0, 0], [0, 0, 0]]), Vector[column](3, [A*omega*sin(k*xi__j + omega*t + delta), 0, 0]));
+                           [   0   ]
+                           [       ]
+                           [  omega]
+                           [- -----]
+                           [    k  ]
+                           [       ]
+                           [   0   ]
+
+;
+# 
+# 
+# Объявляем матрицу для тензора Альманси
+# 
+# 
+> eta := Matrix(3, shape = symmetric);
+> eta[1, 1] := eta__xx;
+> eta[2, 2] := eta__yy;
+> eta[3, 3] := eta__zz;
+> eta[1, 2] := eta__xy;
+> eta[1, 3] := eta__xz;
+> eta[2, 3] := eta__yz;
+# 
+# 
+> eta;
+               Matrix(%id = 36893490464641454836)
+
+;
+# 
+# 
+# Символ Кронекера
+# 
+> assume*(m, integer);
+> assume(n, integer);
+> delta := (m, n) -> if m = n then 1; else 0; end if;
+ delta := proc (m, n) options operator, arrow; if m = n then 1 
+
+    else 0 end if end proc
+
+
+;
+# 
+# 
+# 
+# Общее выражение для закона Гука - заполняем матрицу тензора напряжений
+
+> sigma := Matrix(3, shape = symmetric);
+> for i to 3 do
+>     for j to 3 do sigma[i, j] := lambda*delta(i, j)*(eta[1, 1] + eta[2, 2] + eta[3, 3]) + 2*mu*eta[i, j]; end do;
+> end do;
+> sigma;
+               Matrix(%id = 36893490464641452564)
+
+;
+# 
+# 
+# Заполняем матрицу тензора Альманси
+# 
+> for i to 3 do
+>     for j to 3 do eta[i, j] := 1/2*(diff(Component(u, i), Component(xi, j)) + diff(Component(u, j), Component(xi, i)) - sum(diff(Component(u, k), Component(xi, i))*diff(Component(u, k), Component(xi, j)), k = 1 .. 3)); end do;
+> end do;
+# 
+> eta[1, 1];
+         /   d                                \
+         |------- u__i(xi__i, xi__j, xi__k, t)|
+         \ dxi__i                             /
+
+                                                      2
+              1 /   d                                \ 
+            - - |------- u__i(xi__i, xi__j, xi__k, t)| 
+              2 \ dxi__i                             / 
+
+                                                      2
+              1 /   d                                \ 
+            - - |------- u__j(xi__i, xi__j, xi__k, t)| 
+              2 \ dxi__i                             / 
+
+                                                      2
+              1 /   d                                \ 
+            - - |------- u__k(xi__i, xi__j, xi__k, t)| 
+              2 \ dxi__i                             / 
+
+
+;
+# 
+# 
+> eta[1, 2];
+1    d                                
+- ------- u__i(xi__i, xi__j, xi__k, t)
+2  dxi__j                             
+
+     1    d                                   1 /   d         
+   + - ------- u__j(xi__i, xi__j, xi__k, t) - - |------- u__i(
+     2  dxi__i                                2 \ dxi__i      
+
+                         \ /   d                                \   
+  xi__i, xi__j, xi__k, t)| |------- u__i(xi__i, xi__j, xi__k, t)| - 
+                         / \ dxi__j                             /   
+
+  1 /   d                                \ /   d                
+  - |------- u__j(xi__i, xi__j, xi__k, t)| |------- u__j(xi__i, 
+  2 \ dxi__i                             / \ dxi__j             
+
+                  \   1 /   d                                \ /
+  xi__j, xi__k, t)| - - |------- u__k(xi__i, xi__j, xi__k, t)| |
+                  /   2 \ dxi__i                             / \
+
+     d                                \
+  ------- u__k(xi__i, xi__j, xi__k, t)|
+   dxi__j                             /
+
+
+;
+# 
+> eta[1, 3];
+1    d                                
+- ------- u__i(xi__i, xi__j, xi__k, t)
+2  dxi__k                             
+
+     1    d                                   1 /   d         
+   + - ------- u__k(xi__i, xi__j, xi__k, t) - - |------- u__i(
+     2  dxi__i                                2 \ dxi__i      
+
+                         \ /   d                                \   
+  xi__i, xi__j, xi__k, t)| |------- u__i(xi__i, xi__j, xi__k, t)| - 
+                         / \ dxi__k                             /   
+
+  1 /   d                                \ /   d                
+  - |------- u__j(xi__i, xi__j, xi__k, t)| |------- u__j(xi__i, 
+  2 \ dxi__i                             / \ dxi__k             
+
+                  \   1 /   d                                \ /
+  xi__j, xi__k, t)| - - |------- u__k(xi__i, xi__j, xi__k, t)| |
+                  /   2 \ dxi__i                             / \
+
+     d                                \
+  ------- u__k(xi__i, xi__j, xi__k, t)|
+   dxi__k                             /
+
+
+;
+# 
+# 
+> eta[2, 1];
+1    d                                
+- ------- u__i(xi__i, xi__j, xi__k, t)
+2  dxi__j                             
+
+     1    d                                   1 /   d         
+   + - ------- u__j(xi__i, xi__j, xi__k, t) - - |------- u__i(
+     2  dxi__i                                2 \ dxi__i      
+
+                         \ /   d                                \   
+  xi__i, xi__j, xi__k, t)| |------- u__i(xi__i, xi__j, xi__k, t)| - 
+                         / \ dxi__j                             /   
+
+  1 /   d                                \ /   d                
+  - |------- u__j(xi__i, xi__j, xi__k, t)| |------- u__j(xi__i, 
+  2 \ dxi__i                             / \ dxi__j             
+
+                  \   1 /   d                                \ /
+  xi__j, xi__k, t)| - - |------- u__k(xi__i, xi__j, xi__k, t)| |
+                  /   2 \ dxi__i                             / \
+
+     d                                \
+  ------- u__k(xi__i, xi__j, xi__k, t)|
+   dxi__j                             /
+
+
+;
+# 
+> eta[2, 2];
+         /   d                                \
+         |------- u__j(xi__i, xi__j, xi__k, t)|
+         \ dxi__j                             /
+
+                                                      2
+              1 /   d                                \ 
+            - - |------- u__i(xi__i, xi__j, xi__k, t)| 
+              2 \ dxi__j                             / 
+
+                                                      2
+              1 /   d                                \ 
+            - - |------- u__j(xi__i, xi__j, xi__k, t)| 
+              2 \ dxi__j                             / 
+
+                                                      2
+              1 /   d                                \ 
+            - - |------- u__k(xi__i, xi__j, xi__k, t)| 
+              2 \ dxi__j                             / 
+
+
+;
+# 
+> eta[2, 3];
+1    d                                
+- ------- u__j(xi__i, xi__j, xi__k, t)
+2  dxi__k                             
+
+     1    d                                   1 /   d         
+   + - ------- u__k(xi__i, xi__j, xi__k, t) - - |------- u__i(
+     2  dxi__j                                2 \ dxi__j      
+
+                         \ /   d                                \   
+  xi__i, xi__j, xi__k, t)| |------- u__i(xi__i, xi__j, xi__k, t)| - 
+                         / \ dxi__k                             /   
+
+  1 /   d                                \ /   d                
+  - |------- u__j(xi__i, xi__j, xi__k, t)| |------- u__j(xi__i, 
+  2 \ dxi__j                             / \ dxi__k             
+
+                  \   1 /   d                                \ /
+  xi__j, xi__k, t)| - - |------- u__k(xi__i, xi__j, xi__k, t)| |
+                  /   2 \ dxi__j                             / \
+
+     d                                \
+  ------- u__k(xi__i, xi__j, xi__k, t)|
+   dxi__k                             /
+
+
+;
+# 
+> eta[3, 1];
+1    d                                
+- ------- u__i(xi__i, xi__j, xi__k, t)
+2  dxi__k                             
+
+     1    d                                   1 /   d         
+   + - ------- u__k(xi__i, xi__j, xi__k, t) - - |------- u__i(
+     2  dxi__i                                2 \ dxi__i      
+
+                         \ /   d                                \   
+  xi__i, xi__j, xi__k, t)| |------- u__i(xi__i, xi__j, xi__k, t)| - 
+                         / \ dxi__k                             /   
+
+  1 /   d                                \ /   d                
+  - |------- u__j(xi__i, xi__j, xi__k, t)| |------- u__j(xi__i, 
+  2 \ dxi__i                             / \ dxi__k             
+
+                  \   1 /   d                                \ /
+  xi__j, xi__k, t)| - - |------- u__k(xi__i, xi__j, xi__k, t)| |
+                  /   2 \ dxi__i                             / \
+
+     d                                \
+  ------- u__k(xi__i, xi__j, xi__k, t)|
+   dxi__k                             /
+
+
+;
+# 
+> eta[3, 2];
+1    d                                
+- ------- u__j(xi__i, xi__j, xi__k, t)
+2  dxi__k                             
+
+     1    d                                   1 /   d         
+   + - ------- u__k(xi__i, xi__j, xi__k, t) - - |------- u__i(
+     2  dxi__j                                2 \ dxi__j      
+
+                         \ /   d                                \   
+  xi__i, xi__j, xi__k, t)| |------- u__i(xi__i, xi__j, xi__k, t)| - 
+                         / \ dxi__k                             /   
+
+  1 /   d                                \ /   d                
+  - |------- u__j(xi__i, xi__j, xi__k, t)| |------- u__j(xi__i, 
+  2 \ dxi__j                             / \ dxi__k             
+
+                  \   1 /   d                                \ /
+  xi__j, xi__k, t)| - - |------- u__k(xi__i, xi__j, xi__k, t)| |
+                  /   2 \ dxi__j                             / \
+
+     d                                \
+  ------- u__k(xi__i, xi__j, xi__k, t)|
+   dxi__k                             /
+
+
+;
+# 
+> eta[3, 3];
+         /   d                                \
+         |------- u__k(xi__i, xi__j, xi__k, t)|
+         \ dxi__k                             /
+
+                                                      2
+              1 /   d                                \ 
+            - - |------- u__i(xi__i, xi__j, xi__k, t)| 
+              2 \ dxi__k                             / 
+
+                                                      2
+              1 /   d                                \ 
+            - - |------- u__j(xi__i, xi__j, xi__k, t)| 
+              2 \ dxi__k                             / 
+
+                                                      2
+              1 /   d                                \ 
+            - - |------- u__k(xi__i, xi__j, xi__k, t)| 
+              2 \ dxi__k                             / 
+
+
+;
+# 
+# 
+# Определяем процедуру заполнения тензора Альманси
+# 
+> fill_Almanci_tensor := proc(`du_d&xi;`) local eta, i, j, k; description ""; eta := Matrix(3, shape = symmetric); for i to 3 do for j to 3 do eta[i, j] := 1/2*`du_d&xi;`[i, j] + 1/2*`du_d&xi;`[j, i]; for k to 3 do eta[i, j] := eta[i, j] - 1/2*`du_d&xi;`[k, i]*`du_d&xi;`[k, j]; end do; end do; end do; eta; end proc;
+# 
+# 
+
+# 
+> fill_Almanci_tensor(`du_d&xi;`);
+               Matrix(%id = 36893490464641452868)
+
+;
+# 
+> fill_Almanci_tensor(`du_d&xi;_x_prodoln`);
+               Matrix(%id = 36893490464641453020)
+
+;
+# 
+> fill_Almanci_tensor(`du_d&xi;_x_poperech_z`);
+               Matrix(%id = 36893490464641453172)
+
+;
+# 
+> 
+;
+# 
+# В матрицу тензора напряжений подставляем тензор Альманси
+# 
+> sigma := Matrix(3, shape = symmetric);
+> for i to 3 do
+>     for j to 3 do sigma[i, j] := lambda*delta(i, j)*(eta[1, 1] + eta[2, 2] + eta[3, 3]) + 2*mu*eta[i, j]; end do;
+> end do;
+# 
+> sigma[1, 1];
+       /                                      
+       |/   d                                \
+lambda ||------- u__i(xi__i, xi__j, xi__k, t)|
+       \\ dxi__i                             /
+
+                                             2
+     1 /   d                                \ 
+   - - |------- u__i(xi__i, xi__j, xi__k, t)| 
+     2 \ dxi__i                             / 
+
+                                             2
+     1 /   d                                \ 
+   - - |------- u__j(xi__i, xi__j, xi__k, t)| 
+     2 \ dxi__i                             / 
+
+                                             2
+     1 /   d                                \ 
+   - - |------- u__k(xi__i, xi__j, xi__k, t)| 
+     2 \ dxi__i                             / 
+
+     /   d                                \
+   + |------- u__j(xi__i, xi__j, xi__k, t)|
+     \ dxi__j                             /
+
+                                             2
+     1 /   d                                \ 
+   - - |------- u__i(xi__i, xi__j, xi__k, t)| 
+     2 \ dxi__j                             / 
+
+                                             2
+     1 /   d                                \ 
+   - - |------- u__j(xi__i, xi__j, xi__k, t)| 
+     2 \ dxi__j                             / 
+
+                                             2
+     1 /   d                                \ 
+   - - |------- u__k(xi__i, xi__j, xi__k, t)| 
+     2 \ dxi__j                             / 
+
+     /   d                                \
+   + |------- u__k(xi__i, xi__j, xi__k, t)|
+     \ dxi__k                             /
+
+                                             2
+     1 /   d                                \ 
+   - - |------- u__i(xi__i, xi__j, xi__k, t)| 
+     2 \ dxi__k                             / 
+
+                                             2
+     1 /   d                                \ 
+   - - |------- u__j(xi__i, xi__j, xi__k, t)| 
+     2 \ dxi__k                             / 
+
+                                             2\        /         
+     1 /   d                                \ |        |/   d    
+   - - |------- u__k(xi__i, xi__j, xi__k, t)| | + 2 mu ||------- 
+     2 \ dxi__k                             / /        \\ dxi__i 
+
+                              \
+  u__i(xi__i, xi__j, xi__k, t)|
+                              /
+
+                                             2
+     1 /   d                                \ 
+   - - |------- u__i(xi__i, xi__j, xi__k, t)| 
+     2 \ dxi__i                             / 
+
+                                             2
+     1 /   d                                \ 
+   - - |------- u__j(xi__i, xi__j, xi__k, t)| 
+     2 \ dxi__i                             / 
+
+                                             2\
+     1 /   d                                \ |
+   - - |------- u__k(xi__i, xi__j, xi__k, t)| |
+     2 \ dxi__i                             / /
+
+
+;
+# 
+> sigma[1, 2];
+     /1    d                                
+2 mu |- ------- u__i(xi__i, xi__j, xi__k, t)
+     \2  dxi__j                             
+
+     1    d                                   1 /   d         
+   + - ------- u__j(xi__i, xi__j, xi__k, t) - - |------- u__i(
+     2  dxi__i                                2 \ dxi__i      
+
+                         \ /   d                                \   
+  xi__i, xi__j, xi__k, t)| |------- u__i(xi__i, xi__j, xi__k, t)| - 
+                         / \ dxi__j                             /   
+
+  1 /   d                                \ /   d                
+  - |------- u__j(xi__i, xi__j, xi__k, t)| |------- u__j(xi__i, 
+  2 \ dxi__i                             / \ dxi__j             
+
+                  \   1 /   d                                \ /
+  xi__j, xi__k, t)| - - |------- u__k(xi__i, xi__j, xi__k, t)| |
+                  /   2 \ dxi__i                             / \
+
+     d                                \\
+  ------- u__k(xi__i, xi__j, xi__k, t)||
+   dxi__j                             //
+
+
+;
+# 
+> sigma[1, 3];
+     /1    d                                
+2 mu |- ------- u__i(xi__i, xi__j, xi__k, t)
+     \2  dxi__k                             
+
+     1    d                                   1 /   d         
+   + - ------- u__k(xi__i, xi__j, xi__k, t) - - |------- u__i(
+     2  dxi__i                                2 \ dxi__i      
+
+                         \ /   d                                \   
+  xi__i, xi__j, xi__k, t)| |------- u__i(xi__i, xi__j, xi__k, t)| - 
+                         / \ dxi__k                             /   
+
+  1 /   d                                \ /   d                
+  - |------- u__j(xi__i, xi__j, xi__k, t)| |------- u__j(xi__i, 
+  2 \ dxi__i                             / \ dxi__k             
+
+                  \   1 /   d                                \ /
+  xi__j, xi__k, t)| - - |------- u__k(xi__i, xi__j, xi__k, t)| |
+                  /   2 \ dxi__i                             / \
+
+     d                                \\
+  ------- u__k(xi__i, xi__j, xi__k, t)||
+   dxi__k                             //
+
+
+;
+# 
+> sigma[2, 1];
+     /1    d                                
+2 mu |- ------- u__i(xi__i, xi__j, xi__k, t)
+     \2  dxi__j                             
+
+     1    d                                   1 /   d         
+   + - ------- u__j(xi__i, xi__j, xi__k, t) - - |------- u__i(
+     2  dxi__i                                2 \ dxi__i      
+
+                         \ /   d                                \   
+  xi__i, xi__j, xi__k, t)| |------- u__i(xi__i, xi__j, xi__k, t)| - 
+                         / \ dxi__j                             /   
+
+  1 /   d                                \ /   d                
+  - |------- u__j(xi__i, xi__j, xi__k, t)| |------- u__j(xi__i, 
+  2 \ dxi__i                             / \ dxi__j             
+
+                  \   1 /   d                                \ /
+  xi__j, xi__k, t)| - - |------- u__k(xi__i, xi__j, xi__k, t)| |
+                  /   2 \ dxi__i                             / \
+
+     d                                \\
+  ------- u__k(xi__i, xi__j, xi__k, t)||
+   dxi__j                             //
+
+
+;
+# 
+> sigma[2, 2];
+       /                                      
+       |/   d                                \
+lambda ||------- u__i(xi__i, xi__j, xi__k, t)|
+       \\ dxi__i                             /
+
+                                             2
+     1 /   d                                \ 
+   - - |------- u__i(xi__i, xi__j, xi__k, t)| 
+     2 \ dxi__i                             / 
+
+                                             2
+     1 /   d                                \ 
+   - - |------- u__j(xi__i, xi__j, xi__k, t)| 
+     2 \ dxi__i                             / 
+
+                                             2
+     1 /   d                                \ 
+   - - |------- u__k(xi__i, xi__j, xi__k, t)| 
+     2 \ dxi__i                             / 
+
+     /   d                                \
+   + |------- u__j(xi__i, xi__j, xi__k, t)|
+     \ dxi__j                             /
+
+                                             2
+     1 /   d                                \ 
+   - - |------- u__i(xi__i, xi__j, xi__k, t)| 
+     2 \ dxi__j                             / 
+
+                                             2
+     1 /   d                                \ 
+   - - |------- u__j(xi__i, xi__j, xi__k, t)| 
+     2 \ dxi__j                             / 
+
+                                             2
+     1 /   d                                \ 
+   - - |------- u__k(xi__i, xi__j, xi__k, t)| 
+     2 \ dxi__j                             / 
+
+     /   d                                \
+   + |------- u__k(xi__i, xi__j, xi__k, t)|
+     \ dxi__k                             /
+
+                                             2
+     1 /   d                                \ 
+   - - |------- u__i(xi__i, xi__j, xi__k, t)| 
+     2 \ dxi__k                             / 
+
+                                             2
+     1 /   d                                \ 
+   - - |------- u__j(xi__i, xi__j, xi__k, t)| 
+     2 \ dxi__k                             / 
+
+                                             2\        /         
+     1 /   d                                \ |        |/   d    
+   - - |------- u__k(xi__i, xi__j, xi__k, t)| | + 2 mu ||------- 
+     2 \ dxi__k                             / /        \\ dxi__j 
+
+                              \
+  u__j(xi__i, xi__j, xi__k, t)|
+                              /
+
+                                             2
+     1 /   d                                \ 
+   - - |------- u__i(xi__i, xi__j, xi__k, t)| 
+     2 \ dxi__j                             / 
+
+                                             2
+     1 /   d                                \ 
+   - - |------- u__j(xi__i, xi__j, xi__k, t)| 
+     2 \ dxi__j                             / 
+
+                                             2\
+     1 /   d                                \ |
+   - - |------- u__k(xi__i, xi__j, xi__k, t)| |
+     2 \ dxi__j                             / /
+
+
+;
+> sigma[2, 3];
+     /1    d                                
+2 mu |- ------- u__j(xi__i, xi__j, xi__k, t)
+     \2  dxi__k                             
+
+     1    d                                   1 /   d         
+   + - ------- u__k(xi__i, xi__j, xi__k, t) - - |------- u__i(
+     2  dxi__j                                2 \ dxi__j      
+
+                         \ /   d                                \   
+  xi__i, xi__j, xi__k, t)| |------- u__i(xi__i, xi__j, xi__k, t)| - 
+                         / \ dxi__k                             /   
+
+  1 /   d                                \ /   d                
+  - |------- u__j(xi__i, xi__j, xi__k, t)| |------- u__j(xi__i, 
+  2 \ dxi__j                             / \ dxi__k             
+
+                  \   1 /   d                                \ /
+  xi__j, xi__k, t)| - - |------- u__k(xi__i, xi__j, xi__k, t)| |
+                  /   2 \ dxi__j                             / \
+
+     d                                \\
+  ------- u__k(xi__i, xi__j, xi__k, t)||
+   dxi__k                             //
+
+
+;
+# 
+> sigma[3, 1];
+     /1    d                                
+2 mu |- ------- u__i(xi__i, xi__j, xi__k, t)
+     \2  dxi__k                             
+
+     1    d                                   1 /   d         
+   + - ------- u__k(xi__i, xi__j, xi__k, t) - - |------- u__i(
+     2  dxi__i                                2 \ dxi__i      
+
+                         \ /   d                                \   
+  xi__i, xi__j, xi__k, t)| |------- u__i(xi__i, xi__j, xi__k, t)| - 
+                         / \ dxi__k                             /   
+
+  1 /   d                                \ /   d                
+  - |------- u__j(xi__i, xi__j, xi__k, t)| |------- u__j(xi__i, 
+  2 \ dxi__i                             / \ dxi__k             
+
+                  \   1 /   d                                \ /
+  xi__j, xi__k, t)| - - |------- u__k(xi__i, xi__j, xi__k, t)| |
+                  /   2 \ dxi__i                             / \
+
+     d                                \\
+  ------- u__k(xi__i, xi__j, xi__k, t)||
+   dxi__k                             //
+
+
+;
+# 
+> sigma[3, 2];
+     /1    d                                
+2 mu |- ------- u__j(xi__i, xi__j, xi__k, t)
+     \2  dxi__k                             
+
+     1    d                                   1 /   d         
+   + - ------- u__k(xi__i, xi__j, xi__k, t) - - |------- u__i(
+     2  dxi__j                                2 \ dxi__j      
+
+                         \ /   d                                \   
+  xi__i, xi__j, xi__k, t)| |------- u__i(xi__i, xi__j, xi__k, t)| - 
+                         / \ dxi__k                             /   
+
+  1 /   d                                \ /   d                
+  - |------- u__j(xi__i, xi__j, xi__k, t)| |------- u__j(xi__i, 
+  2 \ dxi__j                             / \ dxi__k             
+
+                  \   1 /   d                                \ /
+  xi__j, xi__k, t)| - - |------- u__k(xi__i, xi__j, xi__k, t)| |
+                  /   2 \ dxi__j                             / \
+
+     d                                \\
+  ------- u__k(xi__i, xi__j, xi__k, t)||
+   dxi__k                             //
+
+
+;
+# 
+> sigma[3, 3];
+       /                                      
+       |/   d                                \
+lambda ||------- u__i(xi__i, xi__j, xi__k, t)|
+       \\ dxi__i                             /
+
+                                             2
+     1 /   d                                \ 
+   - - |------- u__i(xi__i, xi__j, xi__k, t)| 
+     2 \ dxi__i                             / 
+
+                                             2
+     1 /   d                                \ 
+   - - |------- u__j(xi__i, xi__j, xi__k, t)| 
+     2 \ dxi__i                             / 
+
+                                             2
+     1 /   d                                \ 
+   - - |------- u__k(xi__i, xi__j, xi__k, t)| 
+     2 \ dxi__i                             / 
+
+     /   d                                \
+   + |------- u__j(xi__i, xi__j, xi__k, t)|
+     \ dxi__j                             /
+
+                                             2
+     1 /   d                                \ 
+   - - |------- u__i(xi__i, xi__j, xi__k, t)| 
+     2 \ dxi__j                             / 
+
+                                             2
+     1 /   d                                \ 
+   - - |------- u__j(xi__i, xi__j, xi__k, t)| 
+     2 \ dxi__j                             / 
+
+                                             2
+     1 /   d                                \ 
+   - - |------- u__k(xi__i, xi__j, xi__k, t)| 
+     2 \ dxi__j                             / 
+
+     /   d                                \
+   + |------- u__k(xi__i, xi__j, xi__k, t)|
+     \ dxi__k                             /
+
+                                             2
+     1 /   d                                \ 
+   - - |------- u__i(xi__i, xi__j, xi__k, t)| 
+     2 \ dxi__k                             / 
+
+                                             2
+     1 /   d                                \ 
+   - - |------- u__j(xi__i, xi__j, xi__k, t)| 
+     2 \ dxi__k                             / 
+
+                                             2\        /         
+     1 /   d                                \ |        |/   d    
+   - - |------- u__k(xi__i, xi__j, xi__k, t)| | + 2 mu ||------- 
+     2 \ dxi__k                             / /        \\ dxi__k 
+
+                              \
+  u__k(xi__i, xi__j, xi__k, t)|
+                              /
+
+                                             2
+     1 /   d                                \ 
+   - - |------- u__i(xi__i, xi__j, xi__k, t)| 
+     2 \ dxi__k                             / 
+
+                                             2
+     1 /   d                                \ 
+   - - |------- u__j(xi__i, xi__j, xi__k, t)| 
+     2 \ dxi__k                             / 
+
+                                             2\
+     1 /   d                                \ |
+   - - |------- u__k(xi__i, xi__j, xi__k, t)| |
+     2 \ dxi__k                             / /
+
+
+;
+# 
+# 
+# 
+# 
+# Определяем процедуру вычисления тензора напряжений на основе тензора Альманси
+# 
+> fill_stress_tensor_with_Almanci_tensor := proc(eta) local sigma, i, j; description ""; sigma := Matrix(3, shape = symmetric); for i to 3 do for j to 3 do sigma[i, j] := lambda*delta(i, j)*(eta[1, 1] + eta[2, 2] + eta[3, 3]) + 2*mu*eta[i, j]; end do; end do; sigma; end proc;
+# 
+# 
+# 
+# 
+> fill_stress_tensor_with_Almanci_tensor(fill_Almanci_tensor(`du_d&xi;`));
+# 
+# 
+> fill_stress_tensor_with_Almanci_tensor(fill_Almanci_tensor(`du_d&xi;_x_prodoln`));
+               Matrix(%id = 36893490464641453324)
+
+;
+# 
+> fill_stress_tensor_with_Almanci_tensor(fill_Almanci_tensor(`du_d&xi;_x_poperech_z`));
+               Matrix(%id = 36893490464641453476)
+
+;
+# 
+# 
+> 
+;
+# 
+# Сила, действующая на элемент объёма
+# 
+# 
+> F := Vector(3);
+> F[1] := diff(sigma[1, 1], Component(xi, 1)) + diff(sigma[1, 2], Component(xi, 2)) + diff(sigma[1, 3], Component(xi, 3));
+> F[2] := diff(sigma[2, 1], Component(xi, 1)) + diff(sigma[2, 2], Component(xi, 2)) + diff(sigma[2, 3], Component(xi, 3));
+> F[3] := diff(sigma[3, 1], Component(xi, 1)) + diff(sigma[3, 2], Component(xi, 2)) + diff(sigma[3, 3], Component(xi, 3));
+# 
+> F_ := simplify(_i*F[1] + _j*F[2] + _k*F[3]);
+# 
+# Определяем процедуру вычисления силы, действующей на элемент объёма, исходя из тензора напряжений
+# 
+> calc_force := proc(sigma) local F; description ""; F := Vector(3); F[1] := diff(sigma[1, 1], Component(xi, 1)) + diff(sigma[1, 2], Component(xi, 2)) + diff(sigma[1, 3], Component(xi, 3)); F[2] := diff(sigma[2, 1], Component(xi, 1)) + diff(sigma[2, 2], Component(xi, 2)) + diff(sigma[2, 3], Component(xi, 3)); F[3] := diff(sigma[3, 1], Component(xi, 1)) + diff(sigma[3, 2], Component(xi, 2)) + diff(sigma[3, 3], Component(xi, 3)); F; end proc;
+# 
+> calc_force(fill_stress_tensor_with_Almanci_tensor(fill_Almanci_tensor(`du_d&xi;_x_prodoln`)));
+[[       //    2                                \                 
+[[       ||   d                                 |   /   d         
+[[lambda ||-------- u__i(xi__i, xi__j, xi__k, t)| - |------- u__i(
+[[       ||       2                             |   \ dxi__i      
+[[       \\ dxi__i                              /                 
+
+                           /    2                                
+                         \ |   d                                 
+  xi__i, xi__j, xi__k, t)| |-------- u__i(xi__i, xi__j, xi__k, t)
+                         / |       2                             
+                           \ dxi__i                              
+
+  \\        //    2                                \            
+  ||        ||   d                                 |   /   d    
+  || + 2 mu ||-------- u__i(xi__i, xi__j, xi__k, t)| - |------- 
+  ||        ||       2                             |   \ dxi__i 
+  //        \\ dxi__i                              /            
+
+                                /    2                       
+                              \ |   d                        
+  u__i(xi__i, xi__j, xi__k, t)| |-------- u__i(xi__i, xi__j, 
+                              / |       2                    
+                                \ dxi__i                     
+
+           \\]  [       //       2                          
+           ||]  [       ||      d                           
+  xi__k, t)||], [lambda ||-------------- u__i(xi__i, xi__j, 
+           ||]  [       \\ dxi__j dxi__i                    
+           //]                                              
+
+           \                                          /
+           |   /   d                                \ |
+  xi__k, t)| - |------- u__i(xi__i, xi__j, xi__k, t)| |
+           /   \ dxi__i                             / \
+
+         2                                   \\]  [       //
+        d                                    ||]  [       ||
+  -------------- u__i(xi__i, xi__j, xi__k, t)||], [lambda ||
+   dxi__j dxi__i                             //]  [       \\
+
+         2                                   \                 
+        d                                    |   /   d         
+  -------------- u__i(xi__i, xi__j, xi__k, t)| - |------- u__i(
+   dxi__k dxi__i                             /   \ dxi__i      
+
+                           /       2                          
+                         \ |      d                           
+  xi__i, xi__j, xi__k, t)| |-------------- u__i(xi__i, xi__j, 
+                         / \ dxi__k dxi__i                    
+
+           \\]]
+           ||]]
+  xi__k, t)||]]
+           //]]
+              ]
+
+
+;
+# 
+> calc_force(fill_stress_tensor_with_Almanci_tensor(fill_Almanci_tensor(`du_d&xi;_x_poperech_z`)));
+[[
+[[
+[[
+[[
+[[
+                                        /    2                
+ /   d                                \ |   d                 
+-|------- u__k(xi__i, xi__j, xi__k, t)| |-------- u__k(xi__i, 
+ \ dxi__i                             / |       2             
+                                        \ dxi__i              
+
+                  \                                               
+                  |            /   d                              
+  xi__j, xi__k, t)| lambda - 2 |------- u__k(xi__i, xi__j, xi__k, 
+                  |            \ dxi__i                           
+                  /                                               
+
+      /    2                                \   
+    \ |   d                                 |   
+  t)| |-------- u__k(xi__i, xi__j, xi__k, t)| mu
+    / |       2                             |   
+      \ dxi__i                              /   
+
+        /       2                                   \]  [  
+        |      d                                    |]  [ /
+   + mu |-------------- u__k(xi__i, xi__j, xi__k, t)|], [-|
+        \ dxi__k dxi__i                             /]  [ \
+                                                     ]     
+
+                                        /       2            
+     d                                \ |      d             
+  ------- u__k(xi__i, xi__j, xi__k, t)| |-------------- u__k(
+   dxi__i                             / \ dxi__j dxi__i      
+
+                         \       ]  [   /    2                
+                         |       ]  [   |   d                 
+  xi__i, xi__j, xi__k, t)| lambda], [mu |-------- u__k(xi__i, 
+                         /       ]  [   |       2             
+                                    [   \ dxi__i              
+
+                  \                                          /
+                  |   /   d                                \ |
+  xi__j, xi__k, t)| - |------- u__k(xi__i, xi__j, xi__k, t)| |
+                  |   \ dxi__i                             / \
+                  /                                           
+
+         2                                   \       ]]
+        d                                    |       ]]
+  -------------- u__k(xi__i, xi__j, xi__k, t)| lambda]]
+   dxi__k dxi__i                             /       ]]
+                                                     ]]
+
+
+;
+# 
+# Уравнение движения с учётом конвективной производной покомпонентно
+# 
+# Eq := Vector(3);
+# Eq[1] := rho*diff(vel_x, t) + rho*vel_x*diff(vel_x, xi__i) + rho*vel_y*diff(vel_x, xi__j) + rho*vel_z*diff(vel_x, xi__k) = F[1];
+# Eq[2] := rho*diff(vel_y, t) + rho*vel_x*diff(vel_y, xi__i) + rho*vel_y*diff(vel_y, xi__j) + rho*vel_z*diff(vel_y, xi__k) = F[2];
+# Eq[3] := rho*diff(vel_z, t) + rho*vel_x*diff(vel_z, xi__i) + rho*vel_y*diff(vel_z, xi__j) + rho*vel_z*diff(vel_z, xi__k) = F[3];
+# 
+# 
+# 
+# Введём функцию плотности
+> rho__f := rho__m(xi__i, xi__j, xi__k, t);
+            rho__f := rho__m(xi__i, xi__j, xi__k, t)
+
+;
+# Определим процедуру формирования системы дифференциальных уравнений движения с учетом конвективной производной скорости материальных частиц а также включая уравнение непрерывности
+# 
+> motion_equation := proc(rho, v_material, F) local Eq; description ""; Eq := Vector(4); Eq[1] := rho*diff(v_material[1], t) + rho*v_material[1]*diff(v_material[1], xi__i) + rho*v_material[2]*diff(v_material[1], xi__j) + rho*v_material[3]*diff(v_material[1], xi__k) = F[1]; Eq[2] := rho*diff(v_material[2], t) + rho*v_material[1]*diff(v_material[2], xi__i) + rho*v_material[2]*diff(v_material[2], xi__j) + rho*v_material[3]*diff(v_material[2], xi__k) = F[2]; Eq[3] := rho*diff(v_material[3], t) + rho*v_material[1]*diff(v_material[3], xi__i) + rho*v_material[2]*diff(v_material[3], xi__j) + rho*v_material[3]*diff(v_material[3], xi__k) = F[3]; Eq[4] := diff(rho, t) + diff(rho*v_material[1], xi__i) + diff(rho*v_material[2], xi__j) + diff(rho*v_material[3], xi__k) = 0; Eq; end proc;
+# 
+# 
+# Теперь сформируем систему дифференциальных уравнений для продольной волны
+# 
+> Eq_x_prodoln := motion_equation(rho__f, calc_material_vel(`du_d&xi;_x_prodoln`, minus_du_dt_x_prodoln), calc_force(fill_stress_tensor_with_Almanci_tensor(fill_Almanci_tensor(`du_d&xi;_x_prodoln`))));
+                [[                               /
+                [[                               |
+                [[                               |
+                [[                               |
+                [[                               |
+Eq_x_prodoln := [[rho__m(xi__i, xi__j, xi__k, t) |
+                [[                               |
+                [[                               |
+                [[                               |
+                [[                               \
+
+                                          /                 
+                     1                    |/ d              
+  --------------------------------------- ||--- u__i(xi__i, 
+                                        2 \\ dt             
+  /   d                                \                    
+  |------- u__i(xi__i, xi__j, xi__k, t)|                    
+  \ dxi__i                             /                    
+
+                    /     2                                 \\
+                  \ |    d                                  ||
+  xi__j, xi__k, t)| |---------- u__i(xi__i, xi__j, xi__k, t)||
+                  / \ dxi__i dt                             //
+
+        2                                \   
+       d                                 |   
+      ---- u__i(xi__i, xi__j, xi__k, t)  |   
+         2                               |   
+       dt                                |   
+   - ------------------------------------| - 
+        d                                |   
+     ------- u__i(xi__i, xi__j, xi__k, t)|   
+      dxi__i                             |   
+                                         /   
+
+                                       /                     
+                                       |                     
+                                       |                     
+                   1                   |                     
+  ------------------------------------ |rho__m(xi__i, xi__j, 
+     d                                 |                     
+  ------- u__i(xi__i, xi__j, xi__k, t) |                     
+   dxi__i                              |                     
+                                       \                     
+
+                                               /
+                                               |
+                                               |
+            / d                              \ |
+  xi__k, t) |--- u__i(xi__i, xi__j, xi__k, t)| |
+            \ dt                             / |
+                                               |
+                                               |
+                                               \
+
+                                          /                 
+                     1                    |/ d              
+  --------------------------------------- ||--- u__i(xi__i, 
+                                        2 |\ dt             
+  /   d                                \  \                 
+  |------- u__i(xi__i, xi__j, xi__k, t)|                    
+  \ dxi__i                             /                    
+
+                    /    2                                \\
+                  \ |   d                                 ||
+  xi__j, xi__k, t)| |-------- u__i(xi__i, xi__j, xi__k, t)||
+                  / |       2                             ||
+                    \ dxi__i                              //
+
+          2                                 \\            
+         d                                  ||            
+     ---------- u__i(xi__i, xi__j, xi__k, t)||          //
+      dxi__i dt                             ||          ||
+   - ---------------------------------------|| = lambda ||
+         d                                  ||          ||
+      ------- u__i(xi__i, xi__j, xi__k, t)  ||          \\
+       dxi__i                               ||            
+                                            //            
+
+      2                                \                        
+     d                                 |   /   d                
+  -------- u__i(xi__i, xi__j, xi__k, t)| - |------- u__i(xi__i, 
+         2                             |   \ dxi__i             
+   dxi__i                              /                        
+
+                    /    2                                \\     
+                  \ |   d                                 ||     
+  xi__j, xi__k, t)| |-------- u__i(xi__i, xi__j, xi__k, t)|| + 2 
+                  / |       2                             ||     
+                    \ dxi__i                              //     
+
+     //    2                                \                 
+     ||   d                                 |   /   d         
+  mu ||-------- u__i(xi__i, xi__j, xi__k, t)| - |------- u__i(
+     ||       2                             |   \ dxi__i      
+     \\ dxi__i                              /                 
+
+                           /    2                                
+                         \ |   d                                 
+  xi__i, xi__j, xi__k, t)| |-------- u__i(xi__i, xi__j, xi__k, t)
+                         / |       2                             
+                           \ dxi__i                              
+
+    ]                                                               
+    ]                                                               
+    ]                                                               
+  \\]  [           //       2                                   \   
+  ||]  [           ||      d                                    |   
+  ||], [0 = lambda ||-------------- u__i(xi__i, xi__j, xi__k, t)| - 
+  ||]  [           \\ dxi__j dxi__i                             /   
+  //]                                                               
+    ]                                                               
+    ]                                                               
+
+                                         /       2            
+  /   d                                \ |      d             
+  |------- u__i(xi__i, xi__j, xi__k, t)| |-------------- u__i(
+  \ dxi__i                             / \ dxi__j dxi__i      
+
+                         \\]  [           //       2            
+                         ||]  [           ||      d             
+  xi__i, xi__j, xi__k, t)||], [0 = lambda ||-------------- u__i(
+                         //]  [           \\ dxi__k dxi__i      
+
+                         \                                        
+                         |   /   d                                
+  xi__i, xi__j, xi__k, t)| - |------- u__i(xi__i, xi__j, xi__k, t)
+                         /   \ dxi__i                             
+
+    /       2                                   \\]  [            
+  \ |      d                                    ||]  [/ d         
+  | |-------------- u__i(xi__i, xi__j, xi__k, t)||], [|--- rho__m(
+  / \ dxi__k dxi__i                             //]  [\ dt        
+                                                     [            
+                                                     [            
+                                                     [            
+
+                         \                    1                  
+  xi__i, xi__j, xi__k, t)| - ------------------------------------
+                         /      d                                
+                             ------- u__i(xi__i, xi__j, xi__k, t)
+                              dxi__i                             
+
+   //   d                                  \ / d              
+   ||------- rho__m(xi__i, xi__j, xi__k, t)| |--- u__i(xi__i, 
+   \\ dxi__i                               / \ dt             
+
+                  \\                      1                    
+  xi__j, xi__k, t)|| + --------------------------------------- 
+                  //                                         2 
+                       /   d                                \  
+                       |------- u__i(xi__i, xi__j, xi__k, t)|  
+                       \ dxi__i                             /  
+
+  /                                                               
+  |                               / d                             
+  |rho__m(xi__i, xi__j, xi__k, t) |--- u__i(xi__i, xi__j, xi__k, t
+  |                               \ dt                            
+  \                                                               
+
+     /    2                                \\   
+   \ |   d                                 ||   
+  )| |-------- u__i(xi__i, xi__j, xi__k, t)|| - 
+   / |       2                             ||   
+     \ dxi__i                              //   
+
+                                       /                     
+                   1                   |                     
+  ------------------------------------ |rho__m(xi__i, xi__j, 
+     d                                 \                     
+  ------- u__i(xi__i, xi__j, xi__k, t)                       
+   dxi__i                                                    
+
+                                                           ]
+                                                           ]
+                                                           ]
+            /     2                                 \\    ]]
+            |    d                                  ||    ]]
+  xi__k, t) |---------- u__i(xi__i, xi__j, xi__k, t)|| = 0]]
+            \ dxi__i dt                             //    ]]
+                                                          ]]
+                                                          ]]
+                                                          ]]
+
+
+;
+# 
+# сформируем систему дифференциальных уравнений для поперечной волны
+# 
+> Eq_x_poperech_z := motion_equation(rho__f, calc_material_vel(`du_d&xi;_x_poperech_z`, minus_du_dt_x_poperech_z), calc_force(fill_stress_tensor_with_Almanci_tensor(fill_Almanci_tensor(`du_d&xi;_x_poperech_z`))));
+                   [[                               /
+                   [[                               |
+                   [[                               |
+                   [[                               |
+                   [[                               |
+Eq_x_poperech_z := [[rho__m(xi__i, xi__j, xi__k, t) |
+                   [[                               |
+                   [[                               |
+                   [[                               |
+                   [[                               \
+
+                                          /                 
+                     1                    |/ d              
+  --------------------------------------- ||--- u__k(xi__i, 
+                                        2 \\ dt             
+  /   d                                \                    
+  |------- u__k(xi__i, xi__j, xi__k, t)|                    
+  \ dxi__i                             /                    
+
+                    /     2                                 \\
+                  \ |    d                                  ||
+  xi__j, xi__k, t)| |---------- u__k(xi__i, xi__j, xi__k, t)||
+                  / \ dxi__i dt                             //
+
+        2                                \   
+       d                                 |   
+      ---- u__k(xi__i, xi__j, xi__k, t)  |   
+         2                               |   
+       dt                                |   
+   - ------------------------------------| - 
+        d                                |   
+     ------- u__k(xi__i, xi__j, xi__k, t)|   
+      dxi__i                             |   
+                                         /   
+
+                                       /                     
+                                       |                     
+                                       |                     
+                   1                   |                     
+  ------------------------------------ |rho__m(xi__i, xi__j, 
+     d                                 |                     
+  ------- u__k(xi__i, xi__j, xi__k, t) |                     
+   dxi__i                              |                     
+                                       \                     
+
+                                               /
+                                               |
+                                               |
+            / d                              \ |
+  xi__k, t) |--- u__k(xi__i, xi__j, xi__k, t)| |
+            \ dt                             / |
+                                               |
+                                               |
+                                               \
+
+                                          /                 
+                     1                    |/ d              
+  --------------------------------------- ||--- u__k(xi__i, 
+                                        2 |\ dt             
+  /   d                                \  \                 
+  |------- u__k(xi__i, xi__j, xi__k, t)|                    
+  \ dxi__i                             /                    
+
+                    /    2                                \\
+                  \ |   d                                 ||
+  xi__j, xi__k, t)| |-------- u__k(xi__i, xi__j, xi__k, t)||
+                  / |       2                             ||
+                    \ dxi__i                              //
+
+          2                                 \\   
+         d                                  ||   
+     ---------- u__k(xi__i, xi__j, xi__k, t)||   
+      dxi__i dt                             ||   
+   - ---------------------------------------|| = 
+         d                                  ||   
+      ------- u__k(xi__i, xi__j, xi__k, t)  ||   
+       dxi__i                               ||   
+                                            //   
+                                        /    2                
+ /   d                                \ |   d                 
+-|------- u__k(xi__i, xi__j, xi__k, t)| |-------- u__k(xi__i, 
+ \ dxi__i                             / |       2             
+                                        \ dxi__i              
+
+                  \                                               
+                  |            /   d                              
+  xi__j, xi__k, t)| lambda - 2 |------- u__k(xi__i, xi__j, xi__k, 
+                  |            \ dxi__i                           
+                  /                                               
+
+      /    2                                \   
+    \ |   d                                 |   
+  t)| |-------- u__k(xi__i, xi__j, xi__k, t)| mu
+    / |       2                             |   
+      \ dxi__i                              /   
+
+                                                     ]         
+                                                     ]         
+                                                     ]         
+        /       2                                   \]  [      
+        |      d                                    |]  [     /
+   + mu |-------------- u__k(xi__i, xi__j, xi__k, t)|], [0 = -|
+        \ dxi__k dxi__i                             /]  [     \
+                                                     ]         
+                                                     ]         
+                                                     ]         
+
+                                        /       2            
+     d                                \ |      d             
+  ------- u__k(xi__i, xi__j, xi__k, t)| |-------------- u__k(
+   dxi__i                             / \ dxi__j dxi__i      
+
+                         \       ]  [       /    2                
+                         |       ]  [       |   d                 
+  xi__i, xi__j, xi__k, t)| lambda], [0 = mu |-------- u__k(xi__i, 
+                         /       ]  [       |       2             
+                                    [       \ dxi__i              
+
+                  \                                          /
+                  |   /   d                                \ |
+  xi__j, xi__k, t)| - |------- u__k(xi__i, xi__j, xi__k, t)| |
+                  |   \ dxi__i                             / \
+                  /                                           
+
+         2                                   \       ]  [     
+        d                                    |       ]  [/ d  
+  -------------- u__k(xi__i, xi__j, xi__k, t)| lambda], [|--- 
+   dxi__k dxi__i                             /       ]  [\ dt 
+                                                     ]  [     
+                                                        [     
+                                                        [     
+
+                                \   
+  rho__m(xi__i, xi__j, xi__k, t)| - 
+                                /   
+
+                   1                   //   d                  
+  ------------------------------------ ||------- rho__m(xi__i, 
+     d                                 \\ dxi__i               
+  ------- u__k(xi__i, xi__j, xi__k, t)                         
+   dxi__i                                                      
+
+                  \ / d                              \\   
+  xi__j, xi__k, t)| |--- u__k(xi__i, xi__j, xi__k, t)|| + 
+                  / \ dt                             //   
+
+                                          /                     
+                     1                    |                     
+  --------------------------------------- |rho__m(xi__i, xi__j, 
+                                        2 |                     
+  /   d                                \  \                     
+  |------- u__k(xi__i, xi__j, xi__k, t)|                        
+  \ dxi__i                             /                        
+
+                                               /    2         
+            / d                              \ |   d          
+  xi__k, t) |--- u__k(xi__i, xi__j, xi__k, t)| |-------- u__k(
+            \ dt                             / |       2      
+                                               \ dxi__i       
+
+                         \\   
+                         ||   
+  xi__i, xi__j, xi__k, t)|| - 
+                         ||   
+                         //   
+
+                                       /                     
+                   1                   |                     
+  ------------------------------------ |rho__m(xi__i, xi__j, 
+     d                                 \                     
+  ------- u__k(xi__i, xi__j, xi__k, t)                       
+   dxi__i                                                    
+
+                                                           ]
+                                                           ]
+                                                           ]
+            /     2                                 \\    ]]
+            |    d                                  ||    ]]
+  xi__k, t) |---------- u__k(xi__i, xi__j, xi__k, t)|| = 0]]
+            \ dxi__i dt                             //    ]]
+                                                          ]]
+                                                          ]]
+                                                          ]]
+
+
+;
+# 
+# 
+# Полученные уравнения носят явно нелинейный характер
+# 
+# Чтобы в этом убедиться попробуем подставить синусоиду в систему уравнений для плоской продольной волны
+# 
+> simplify(subs(u__i(xi__i, xi__j, xi__k, t) = A*cos(k*xi__i + omega*t + delta), Eq_x_prodoln));
+[                                                              
+[                                                              
+[[                                      /     1       \        
+[[0 = -2 cos(k xi__i + omega t + delta) |mu + - lambda| A (A k 
+[[                                      \     2       /        
+
+                                                             [ 
+                                                             [ 
+                                       2]                    [/
+  sin(k xi__i + omega t + delta) + 1) k ], [0 = 0], [0 = 0], [|
+                                        ]                    [\
+
+   d                                \
+  --- rho__m(xi__i, xi__j, xi__k, t)|
+   dt                               /
+
+     /   d                                  \          ]]
+     |------- rho__m(xi__i, xi__j, xi__k, t)| omega    ]]
+     \ dxi__i                               /          ]]
+   - ---------------------------------------------- = 0]]
+                           k                           ]]
+
+
+;
+# 
+# попробуем подставить синусоиду в систему уравнений для плоской поперечной волны
+# 
+# 
+> simplify(subs(u__k(xi__i, xi__j, xi__k, t) = A*cos(k*xi__i + omega*t + delta), Eq_x_poperech_z));
+ [                                                             
+ [                                                             
+ [[      2                                                     
+ [[0 = -A  sin(k xi__i + omega t + delta) cos(k xi__i + omega t
+ [                                                             
+
+              3                ]           
+    + delta) k  (lambda + 2 mu)], [0 = 0], 
+
+                                                  [            
+                                                  [            
+   [           2                               ]  [/ d         
+   [0 = -mu A k  cos(k xi__i + omega t + delta)], [|--- rho__m(
+                                                  [\ dt        
+
+                          \
+   xi__i, xi__j, xi__k, t)|
+                          /
+
+      /   d                                  \          ]]
+      |------- rho__m(xi__i, xi__j, xi__k, t)| omega    ]]
+      \ dxi__i                               /          ]]
+    - ---------------------------------------------- = 0]]
+                            k                           ]]
+
+
+;
+> 
+;
+# И что же невооружённым глазом видно что синусоида не удовлетворяет уравнению плоской волны: ни продольной ни поперечной. Что говорит о нелинейности действительного уравнения движения сплошной среды, в отличие от уравнения Ламе, вывод которого даётся в курсах линейной теории упругости.
+# 
+# 
+> NULL;
