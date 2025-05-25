@@ -1,0 +1,1671 @@
+> 
+;
+# 
+# 
+# Размышления на тему теории упругой вселенной Чурляева - продолжение
+# 
+# А.Ю.Дроздов
+# Резюмирую материал, представленный Размышления на тему теории упругой вселенной Чурляева могу сказать следующее. 
+# 
+# Волновым уравнением вакуума, которому могут удовлетворять решения в виде сферических стоячих волн, в первом (линейном) приближении является уравнение Ламе. Более точным волновым уравнением будет уравнение Ламе с учётом отброшенных нелинейных поправок: в тензоре Альманси и в выражении скорости через смещения в описании Эйлера. Такое уравнение, конечно же, нелинейно. Учёт этих нелинейностей позволит показать возникновение гравитационного поля частицы. Следующим этапом должно стать использование нелинейных уравнений движения моментной теории упругости.
+# 
+# Проблемы с искуственностью введения закона наслоения у Чурляева возникли благодаря тому, что он в основе своей теории использовал неверное (простое) волновое уравнение. В данной работе я собираюсь показать, что сферическая стоячая волна, нормированная множителем 1/r; при одновременном убывании частоты с расстоянием центра  как omega__0/r; прекрасно удовлетворяет линейному уравнению Ламе. При этом omega__0; может принимать дискретный спектр значений. 
+# 
+# Таким образом закон наслоения с нелинейностью среды никак не связан. Он связан именно с необходимостью учесть объёмные деформации среды в сферической стоячей волне.
+# 
+# Но тем не менее однородная по свойствам сплошная среда всё же нелинейна. И нелинейность эта связана тем что при выводе уравнения Ламе были отброшены бесконечно малые второго порядка. Так вот если учесть эти бесконечно малые, а именно, если вместо тензора деформации Коши использовать тензор деформации Альманси, то мы получим уже более приближённое к реальности уравнение сплошной среды.
+# 
+# Моё предварительное тестирование такого уравнения в декартовых координатах, показало что плоская продольная волна в такой среде уже не есть обычная синусоида! Хотя плоская поперечная - всё ещё синусоида.
+
+# Следующим шагом нужно будет от классической теории упругости с симметричными тензорами перейти к моментной теории братьев Коссеров, в которой тоже учесть нелинейный тензор Альманси.
+# 
+# В данной работе я также показываю, что колебания в сферической стоячей волне могут быть направлены и в другом направлении (тороидальная мода колебаний)  
+# Начну с исследования поведения сферической стоячей волны, нормированную в соответствии с законом наслоения и с частотой убывающей как omega__0/r; в среде, подчиняющейся уравнению Ламе
+> 
+# 
+# выражение для сферической стоячей волны (Справочник по математике. Г.Корн и Т.Корн, стр. 327, 10.4-48)
+# 
+> restart;
+# 
+> with(Physics[Vectors]);
+> Setup(mathematicalnotation = true);
+# 
+> W__0 := (r, theta, phi, t, j, m, k, omega, delta) -> BesselJ(j + 1/2, k*r)*SphericalY(j, m, theta, phi)*cos(omega*t + delta)/sqrt(r);
+W__0 := proc (r, theta, phi, t, j, m, k, omega, delta) options 
+
+   operator, arrow; BesselJ(Physics:-Vectors:-`+`(j, 1/2), 
+
+   k*r)*SphericalY(j, m, theta, phi)*cos(Physics:-Vectors:-`+`(o\
+
+  mega*t, delta))/sqrt(r) end proc
+
+
+;
+> 
+;
+> 
+;
+# Скалярную величину, как я это делал в случае волнового уравнения, мы не сможем исследовать, так как дивергенцию от скалярной величины взять не возможно. Поэтому в данной работе будем исследовать различные варианты направлений колебаний в локе
+# 
+# Вариант Чурляева назначаем направления колебаний так, "чтобы все колебания были параллельны оси  Z"
+# 
+# 
+# 
+> W__r := (r, theta, phi, t, j, m, omega, delta) -> W__0(r, theta, phi, t, j, m, omega/c, omega, delta)*cos(theta);
+  W__r := proc (r, theta, phi, t, j, m, omega, delta) options 
+
+     operator, arrow; W__0(r, theta, phi, t, j, m, omega/c, 
+
+     omega, delta)*cos(theta) end proc
+
+
+;
+# 
+> `W__&theta;` := (r, theta, phi, t, j, m, omega, delta) -> -W__0(r, theta, phi, t, j, m, omega/c, omega, delta)*sin(theta);
+   W__&theta; := proc (r, theta, phi, t, j, m, omega, delta) 
+
+      options operator, arrow; -W__0(r, theta, phi, t, j, m, 
+
+      omega/c, omega, delta)*sin(theta) end proc
+
+
+;
+# 
+> `W__&phi;` := (r, theta, phi, t, j, m, omega, delta) -> 0;
+W__&phi; := proc (r, theta, phi, t, j, m, omega, delta) options 
+
+   operator, arrow; 0 end proc
+
+
+;
+# 
+# 
+# Определим вектор колебаний чурляевского решения волнового уравнения. 
+# 
+> `#mover(mi("U"),mo("&rarr;"))` := (r, theta, phi, t, j, m, omega, delta) -> W__r(r, theta, phi, t, j, m, omega, delta)*`#mover(mi("r"),mo("&and;"))` + `W__&theta;`(r, theta, phi, t, j, m, omega, delta)*`#mover(mi("&theta;",fontstyle = "normal"),mo("&and;"))` + `W__&phi;`(r, theta, phi, t, j, m, omega, delta)*`#mover(mi("&phi;",fontstyle = "normal"),mo("&and;"))`;
+# 
+# 
+# Тороидальная мода колебаний из литературы https://pdfs.semanticscholar.org/a610/40a5032e5a59f0f6aa6a67b7f1b857224448.pdf  в главе 2.1 "Shear oscillations of a perfectly elastic solid globe in the regime of standing waves of material displacements" 
+
+> Toroidal_mode_of_solid_globe := (r, theta, phi, t, j, m, omega, delta) -> Curl(`#mover(mi("r"),mo("&and;"))`*BesselJ(j + 1/2, omega*r/c)*LegendreP(j, m, cos(theta)))*cos(omega*t + delta);
+> simplify(Toroidal_mode_of_solid_globe(r, theta, phi, t, j, m, omega, delta));
+Toroidal_mode_of_solid_globe := proc (r, theta, phi, t, j, m, 
+
+   omega, delta) options operator, arrow; Physics:-Vectors:-Curl\
+
+  (_r*BesselJ(Physics:-Vectors:-`+`(j, 1/2), omega*r/c)*Legendre\
+
+  P(j, m, cos(theta)))*cos(Physics:-Vectors:-`+`(omega*t, 
+
+   delta)) end proc
+
+
+     1       /                                             
+------------ |((-j + m - 1) LegendreP(j + 1, m, cos(theta))
+sin(theta) r \                                             
+
+   + (j + 1) cos(theta) LegendreP(j, m, cos(theta))) cos(omega t
+
+                        /    1  omega r\\
+   + delta) _phi BesselJ|j + -, -------||
+                        \    2     c   //
+
+
+;
+# 
+# 
+# Сфероидальная мода колебаний оттуда же
+# 
+
+> Spheroidal_mode_of_solid_globe := (r, theta, phi, t, j, m, omega, delta) -> Curl(Curl(`#mover(mi("r"),mo("&and;"))`*BesselJ(j + 1/2, omega*r/c)*LegendreP(j, m, cos(theta))))*cos(omega*t + delta);
+> simplify(Spheroidal_mode_of_solid_globe(r, theta, phi, t, j, m, omega, delta));
+Spheroidal_mode_of_solid_globe := proc (r, theta, phi, t, j, m, 
+
+   omega, delta) options operator, arrow; Physics:-Vectors:-Curl\
+
+  (Physics:-Vectors:-Curl(_r*BesselJ(Physics:-Vectors:-`+`(j, 
+
+   1/2), omega*r/c)*LegendreP(j, m, cos(theta))))*cos(Physics:-V\
+
+  ectors:-`+`(omega*t, delta)) end proc
+
+
+       1         //  /
+---------------- ||c |
+          2  2   \\  \
+sin(theta)  r  c      
+             /    1\                                       
+-(j - m + 1) |j + -| sin(theta) _theta LegendreP(j + 1, m, 
+             \    2/                                       
+
+                                            /                   / 
+  cos(theta)) + LegendreP(j, m, cos(theta)) |(j + 1) cos(theta) |j
+                                            \                   \ 
+
+     1\                  
+   + -| _theta sin(theta)
+     2/                  
+
+        // 2    \           2    2    2    \\\        /    1  
+   - _r \\j  + j/ cos(theta)  - j  + m  - j/|| BesselJ|j + -, 
+                                            //        \    2  
+
+  omega r\                  /    1  omega r\               
+  -------| - omega r BesselJ|j - -, -------| ((-j + m - 1) 
+     c   /                  \    2     c   /               
+
+  LegendreP(j + 1, m, cos(theta))
+
+   + (j + 1) cos(theta) LegendreP(j, m, cos(theta))) sin(theta) 
+
+        \                     \
+  _theta| cos(omega t + delta)|
+        /                     /
+
+
+;
+# 
+# 
+# По аналогии с этими двумя модами колебаний из литературы мы можем назначить колебания не параллельно оси Z, а применив ротор к выражению сферической стоячей волны
+# Таким получаем тородально направленные колебания в сферической стоячей волне
+# 
+> Toroidal_mode_of_spherical_standing_wave := (r, theta, phi, t, j, m, omega, delta) -> Curl(`#mover(mi("r"),mo("&and;"))`*W__0(r, theta, phi, t, j, m, omega/c, omega, delta));
+> simplify(Toroidal_mode_of_spherical_standing_wave(r, theta, phi, t, j, m, omega, delta));
+  Toroidal_mode_of_spherical_standing_wave := proc (r, theta, 
+
+     phi, t, j, m, omega, delta) options operator, arrow; 
+
+     Physics:-Vectors:-Curl(_r*W__0(r, theta, phi, t, j, m, 
+
+     omega/c, omega, delta)) end proc
+
+
+/                                             /
+|       /    1  omega r\                      |
+|BesselJ|j + -, -------| cos(omega t + delta) |
+\       \    2     c   /                      \
+                                                           (1/2) 
+-SphericalY(j + 1, m, theta, phi) _phi factorial(j + 1 + m)      
+
+                                    (1/2)   
+              /factorial(j - m + 1)\        
+  (j - m + 1) |--------------------|      + 
+              \     j - m + 1      /        
+
+                                                  (1/2)         
+                      (1/2) /factorial(j + 1 + m)\              
+  factorial(j - m + 1)      |--------------------|      (_phi (j
+                            \     j + 1 + m      /              
+
+   + 1) cos(theta) + I m _theta) SphericalY(j, m, theta, phi) 
+
+           (1/2)\\//         (1/2)                           
+  /2 j + 3\     || |/2 j + 3\                          (1/2) 
+  |-------|     || ||-------|      factorial(j - m + 1)      
+  \2 j + 1/     // \\2 j + 1/                                
+
+                        (1/2)                  \
+  /factorial(j + 1 + m)\       (3/2)           |
+  |--------------------|      r      sin(theta)|
+  \     j + 1 + m      /                       /
+
+
+;
+# 
+# 
+# и сфероидально направленные колебания в сферической стоячей волне
+# 
+> Spheroidal_mode_of_spherical_standing_wave := (r, theta, phi, t, j, m, omega, delta) -> Curl(Curl(`#mover(mi("r"),mo("&and;"))`*W__0(r, theta, phi, t, j, m, omega/c, omega, delta)));
+> simplify(Spheroidal_mode_of_spherical_standing_wave(r, theta, phi, t, j, m, omega, delta));
+ Spheroidal_mode_of_spherical_standing_wave := proc (r, theta, 
+
+    phi, t, j, m, omega, delta) options operator, arrow; 
+
+    Physics:-Vectors:-Curl(Physics:-Vectors:-Curl(_r*W__0(r, 
+
+    theta, phi, t, j, m, omega/c, omega, delta))) end proc
+
+
+  ///                                                     
+  |||                    (1/2)                 (1/2) /  / 
+- |||factorial(j - m + 1)      factorial(j + m)      |c \(
+  \\\                                                \    
+-_theta (j + 1) cos(theta) + I m _phi) (j + 1) sin(theta)
+
+     // 2    \           2    2        \   \        /    1  
+   + \\j  + j/ cos(theta)  - m  + j + 1/ _r/ BesselJ|j + -, 
+                                                    \    2  
+
+  omega r\                                                  /
+  -------| - (-_theta (j + 1) cos(theta) + I m _phi) BesselJ|
+     c   /                                                  \
+
+      1  omega r\                   \                              
+  j - -, -------| r sin(theta) omega| SphericalY(j, m, theta, phi) 
+      2     c   /                   /                              
+
+           (1/2)                                                  
+  /2 j + 3\                        (1/2)             /  /         
+  |-------|      + factorial(j - m)      (j - m + 1) |c |_theta (j
+  \2 j + 1/                                          \  \         
+
+                       /    3\              \        /    1  
+   + 1) sin(theta) - 2 |j + -| cos(theta) _r| BesselJ|j + -, 
+                       \    2/              /        \    2  
+
+  omega r\                                  /    1  omega r\  \ 
+  -------| - omega _theta sin(theta) BesselJ|j - -, -------| r| 
+     c   /                                  \    2     c   /  / 
+
+                                                            \ 
+                      (1/2)                                 | 
+  factorial(j + 1 + m)      SphericalY(j + 1, m, theta, phi)| 
+                                                            / 
+
+                                     (1/2)   
+                      (1/2) /2 j + 5\        
+  factorial(j - m + 2)      |-------|      + 
+                            \2 j + 1/        
+
+                  (1/2)        /    1  omega r\                   
+  factorial(j - m)      BesselJ|j + -, -------| SphericalY(j + 2, 
+                               \    2     c   /                   
+
+                          (1/2)                           
+                 /2 j + 3\                          (1/2) 
+  m, theta, phi) |-------|      factorial(j - m + 1)      
+                 \2 j + 1/                                
+
+                                                        \     
+                      (1/2)                             |     
+  factorial(j + 2 + m)      _r c (j - m + 2) (j - m + 1)| cos(
+                                                        /     
+
+                  \//                                 
+                  | | (5/2)                     (1/2) 
+  omega t + delta)| |r      factorial(j - m + 1)      
+                  / \                                 
+
+                                 (1/2)                           
+                  (1/2) /2 j + 3\                          (1/2) 
+  factorial(j + m)      |-------|      factorial(j - m + 2)      
+                        \2 j + 1/                                
+
+           (1/2)              \
+  /2 j + 5\                2  |
+  |-------|      sin(theta)  c|
+  \2 j + 1/                   /
+
+
+;
+# 
+# Применим ко всем пяти модам колебаний нормировку по закону наслоения и по частоте, делённой на радиус
+# 
+# Чурляевский лок, нормированный по обратному радиусу и по частоте, делённой на радиус
+# 
+> `U&omega;r_` := (r, theta, phi, t, j, m, omega__0, delta) -> `#mover(mi("U"),mo("&rarr;"))`(r, theta, phi, t, j, m, omega__0/r, delta)/r;
+# 
+# Тороидальная мода колебаний из литературы, нормированная по обратному радиусу и по частоте, делённой на радиус
+> `Toroidal_mode_of_solid_globe_&omega;r` := (r, theta, phi, t, j, m, omega__0, delta) -> Toroidal_mode_of_solid_globe(r, theta, phi, t, j, m, omega__0/r, delta)/r;
+# 
+# Сфероидальная мода колебаний из литературы, нормированная по обратному радиусу и по частоте, делённой на радиус
+> `Spheroidal_mode_of_solid_globe_&omega;r` := (r, theta, phi, t, j, m, omega__0, delta) -> Spheroidal_mode_of_solid_globe(r, theta, phi, t, j, m, omega__0/r, delta)/r;
+> 
+;
+# 
+# Тородальная мода сферической стоячей волны, нормированная по обратному радиусу и по частоте, делённой на радиус
+> `Toroidal_mode_of_spherical_standing_wave_&omega;r` := (r, theta, phi, t, j, m, omega__0, delta) -> Toroidal_mode_of_spherical_standing_wave(r, theta, phi, t, j, m, omega__0/r, delta)/r;
+# 
+# 
+# 
+# Сфероидальная мода сферической стоячей волны, нормированная по обратному радиусу и по частоте, делённой на радиус
+> `Spheroidal_mode_of_spherical_standing_wave_&omega;r` := (r, theta, phi, t, j, m, omega__0, delta) -> Spheroidal_mode_of_spherical_standing_wave(r, theta, phi, t, j, m, omega__0/r, delta)/r;
+# 
+# 
+# 
+# Определяем уравнение Ламе
+> Lame_equation := W_ -> rho*diff(W_, t, t) = (lambda + mu)*Gradient(Divergence(W_)) + mu*Laplacian(W_);
+Lame_equation := proc (W_) options operator, arrow; rho*Physics:\
+
+  -Vectors:-diff(W_, t, t) = Physics:-Vectors:-`+`(Physics:-Vect\
+
+  ors:-`+`(lambda, mu)*Physics:-Vectors:-Gradient(Physics:-Vecto\
+
+  rs:-Divergence(W_)), mu*Physics:-Vectors:-Laplacian(W_)) end 
+
+   proc
+
+
+;
+# 
+# Чурляевский лок, нормированный по обратному радиусу и по частоте, делённой на радиус подставляем в уравнение Ламе
+# 
+> `Lame_equation_with_U&omega;r` := simplify(Lame_equation(simplify(`U&omega;r_`(r, theta, phi, t, j, m, omega__0, delta))));
+                                  1    /               
+Lame_equation_with_U&omega;r := ------ |(-cos(theta) _r
+                                 (7/2) \               
+                                r                      
+
+                                                                /
+   + sin(theta) _theta) rho SphericalY(j, m, theta, phi) BesselJ|
+                                                                \
+
+                                                          //
+      1  omega__0\         2    /delta r + omega__0 t\\   ||
+  j + -, --------| omega__0  cos|--------------------|| = ||
+      2     c    /              \         r          //   \\
+               /                                                 
+               |                      (1/2)                      
+-r (j - m + 1) |r factorial(j + 2 + m)      SphericalY(j + 2, m, 
+               \                                                 
+
+  theta, phi) (-_r mu cos(theta)
+
+                                                 (1/2)     
+                                        /2 j + 3\         /
+   + _theta sin(theta) (lambda + 2 mu)) |-------|      cos|
+                                        \2 j + 1/         \
+
+                                                          (1/2)   
+  delta r + omega__0 t\             /factorial(j - m + 2)\        
+  --------------------| (j - m + 2) |--------------------|      + 
+           r          /             \     j - m + 2      /        
+
+  /  /5 //4     11\            \              2
+  |r |- ||- j + --| mu + lambda| _r cos(theta) 
+  \  \2 \\5     5 /            /               
+
+                         //      9\             /    3\\          
+   - 2 _theta sin(theta) ||2 j + -| mu + lambda |j + -|| cos(theta
+                         \\      4/             \    4//          
+
+                    /                      5   \\    /
+  ) + (lambda + mu) |I sin(theta) m _phi - - _r|| cos|
+                    \                      2   //    \
+
+  delta r + omega__0 t\               /delta r + omega__0 t\   
+  --------------------| - omega__0 sin|--------------------| t 
+           r          /               \         r          /   
+
+                /                                            2
+  (lambda + mu) \_theta cos(theta) sin(theta) + _r cos(theta) 
+
+                                                          (1/2) 
+       \\                     (1/2) /factorial(j + 2 + m)\      
+   - _r/| factorial(j - m + 2)      |--------------------|      
+        /                           \     j + 2 + m      /      
+
+           (1/2)                                 \ 
+  /2 j + 5\                                      | 
+  |-------|      SphericalY(j + 1, m, theta, phi)| 
+  \2 j + 1/                                      / 
+
+                           (1/2)                                
+  / factorial(j - m + 2)  \        //   /5 /    1\ //2     8\   
+  |-----------------------|      + ||_r |- |j - -| ||- j + -| mu
+  \(j - m + 2) (j - m + 1)/        \\   \2 \    2/ \\5     5/   
+
+           \  2    2         2                \           3   ///   
+   + lambda| r  + t  omega__0  (lambda + 2 mu)| cos(theta)  - |||2 j
+           /                                  /               \\\   
+
+     3\              \ /    1\  2       2         2\            
+   + -| mu + j lambda| |j - -| r  + mu t  omega__0 | _theta sin(
+     2/              / \    2/                     /            
+
+                   2   /                 2        /    1\     
+  theta) cos(theta)  + |I (lambda + mu) r  m _phi |j - -| sin(
+                       \                          \    2/     
+
+           /// 2   3      \      5        /    1\\  2
+  theta) - |||m  + - j - 3| mu + - lambda |j - -|| r 
+           \\\     2      /      2        \    2//   
+
+      2         2                \   \              ///  2      
+   + t  omega__0  (lambda + 2 mu)| _r| cos(theta) - |||-m  + 2 j
+                                 /   /              \\\         
+
+     5\             /    1\\  2       2         2\            
+   + -| mu + lambda |j - -|| r  - mu t  omega__0 | _theta sin(
+     4/             \    2//                     /            
+
+        \    /delta r + omega__0 t\                 /
+  theta)| cos|--------------------| + omega__0 r sin|
+        /    \         r          /                 \
+
+  delta r + omega__0 t\   /
+  --------------------| t \
+           r          /    
+                                            3
+-((j - 7) mu + lambda (j - 4)) _r cos(theta) 
+
+                                                         2      
+   - ((3 + j) mu + j lambda) _theta sin(theta) cos(theta)  + (I 
+
+  (lambda + mu) m _phi sin(theta)
+
+   + ((j - 7) mu + lambda (j - 4)) _r) cos(theta)
+
+                                      \\ 
+   - _theta sin(theta) (lambda - 2 mu)/| 
+                                       / 
+
+                      (1/2)                              
+  factorial(j - m + 2)      SphericalY(j, m, theta, phi) 
+
+           (1/2)          (1/2)                          (1/2) 
+  /2 j + 3\      /2 j + 5\      / factorial(j + 2 + m)  \      
+  |-------|      |-------|      |-----------------------|      
+  \2 j + 1/      \2 j + 1/      \(j + 2 + m) (j + 1 + m)/      
+
+                        (1/2)\                         \//
+  /factorial(j - m + 2)\     |        /    1  omega__0\| |
+  |--------------------|     | BesselJ|j + -, --------|| |
+  \     j - m + 2      /     /        \    2     c    // \
+
+                        (1/2)          (1/2) 
+  /factorial(j - m + 2)\      /2 j + 5\      
+  |--------------------|      |-------|      
+  \     j - m + 2      /      \2 j + 1/      
+
+                           (1/2)         
+  / factorial(j + 2 + m)  \       (11/2) 
+  |-----------------------|      r       
+  \(j + 2 + m) (j + 1 + m)/              
+
+                                     (1/2)            \
+                      (1/2) /2 j + 3\                2|
+  factorial(j - m + 2)      |-------|      sin(theta) |
+                            \2 j + 1/                 /
+
+
+;
+# 
+# Тородальную моду сферической стоячей волны, как есть - не нормируя,  подставляем в уравнение Ламе
+# 
+> Lame_equation_with_Toroidal_mode_of_spherical_standing_wave := simplify(Lame_equation(simplify(Toroidal_mode_of_spherical_standing_wave(r, theta, phi, t, j, m, omega, delta))));
+                                                                 /    
+                                                                 |    
+Lame_equation_with_Toroidal_mode_of_spherical_standing_wave := - |rho 
+                                                                 \    
+
+                                                      /
+         /    1  omega r\                           2 |
+  BesselJ|j + -, -------| cos(omega t + delta) omega  |
+         \    2     c   /                             \
+
+                  (1/2)                              
+  factorial(j + m)      SphericalY(j, m, theta, phi) 
+
+                      (1/2)                                      
+  factorial(j - m + 1)      (_phi (j + 1) cos(theta) + I m _theta
+
+             (1/2)                                         
+    /2 j + 3\                                              
+  ) |-------|      - SphericalY(j + 1, m, theta, phi) _phi 
+    \2 j + 1/                                              
+
+                                                             \\//
+                      (1/2)                 (1/2)            || |
+  factorial(j + 1 + m)      factorial(j - m)      (j - m + 1)|| |
+                                                             // \
+
+                                        (1/2) 
+   (3/2)                 (1/2) /2 j + 3\      
+  r      factorial(j + m)      |-------|      
+                               \2 j + 1/      
+
+                                      \     /             
+                      (1/2)           |     |             
+  factorial(j - m + 1)      sin(theta)| = - |4 cos(omega t
+                                      /     \             
+
+               /                          //
+               |                    (1/2) ||
+   + delta) mu |factorial(j - m + 3)      ||
+               \                          \\
+
+                      (1/2) /    1\                 (1/2)       
+  factorial(j + 1 + m)      |j + -| factorial(j - m)      (j - m
+                            \    2/                             
+
+        //     // 2   7     7\  2   1      2  2\           2
+   + 1) ||_phi ||j  + - j + -| c  + - omega  r | cos(theta) 
+        \\     \\     2     2/      2          /            
+
+       /    3\  2                    
+   + I |j + -| c  m _theta cos(theta)
+       \    2/                       
+
+     1 // 2    2          \  2        2  2\     \        /    1  
+   + - \\j  - m  + 6 j + 6/ c  - omega  r / _phi| BesselJ|j + -, 
+     2                                          /        \    2  
+
+  omega r\               /    1  omega r\                      
+  -------| + _phi BesselJ|j - -, -------| c omega r (cos(theta)
+     c   /               \    2     c   /                      
+
+                        \                                  
+   - 1) (cos(theta) + 1)| SphericalY(j + 1, m, theta, phi) 
+                        /                                  
+
+           (1/2)                                     
+  /2 j + 3\        /    3\                     (1/2) 
+  |-------|      + |j + -| factorial(j - m + 1)      
+  \2 j + 1/        \    2/                           
+
+                  (1/2) //             /         2   1      2  2\ 
+  factorial(j + m)      ||(j + 1) _phi |(j + 1) c  - - omega  r | 
+                        \\             \             2          / 
+
+            3       /         2   1      2  2\                  2   
+  cos(theta)  + I m |(j + 1) c  - - omega  r | _theta cos(theta)  - 
+                    \             2          /                      
+
+  1      // 3      2      2      2           \  2
+  - _phi \\j  - j m  + 7 j  - 3 m  + 11 j + 5/ c 
+  2                                              
+
+          2  2        \           
+   - omega  r  (j + 1)/ cos(theta)
+
+     1     // 2    2          \  2        2  2\       \        /
+   - - I m \\j  - m  + 4 j + 3/ c  - omega  r / _theta| BesselJ|
+     2                                                /        \
+
+      1  omega r\                                                 
+  j + -, -------| - c (cos(theta) - 1) r (cos(theta) + 1) (_phi (j
+      2     c   /                                                 
+
+                                        /    1  omega r\      \ 
+   + 1) cos(theta) + I m _theta) BesselJ|j - -, -------| omega| 
+                                        \    2     c   /      / 
+
+                              \                           
+                              |                     (1/2) 
+  SphericalY(j, m, theta, phi)| factorial(j - m + 2)      
+                              /                           
+
+           (1/2)                                                 
+  /2 j + 5\        1 /    3\  2                                  
+  |-------|      - - |j + -| c  SphericalY(j + 2, m, theta, phi) 
+  \2 j + 1/        2 \    2/                                     
+
+                  (1/2)                    /    1  omega r\ 
+  factorial(j - m)      (j - m + 1) BesselJ|j + -, -------| 
+                                           \    2     c   / 
+
+                      (1/2)                           
+  factorial(j - m + 1)      (_phi (3 j + 8) cos(theta)
+
+                                                      \ 
+                                     (1/2)            | 
+   + I m _theta) factorial(j + 2 + m)      (j - m + 2)| 
+                                                      / 
+
+           (1/2)                                                 
+  /2 j + 7\        1                                  /    3\  2 
+  |-------|      + - SphericalY(3 + j, m, theta, phi) |j + -| c  
+  \2 j + 1/        2                                  \    2/    
+
+                       (1/2)                    /    1  omega r\ 
+  _phi factorial(j - m)      (j - m + 1) BesselJ|j + -, -------| 
+                                                \    2     c   / 
+
+                      (1/2)                     (1/2) 
+  factorial(j - m + 1)      factorial(j + 3 + m)      
+
+                                     (1/2)                       
+                      (1/2) /2 j + 5\                            
+  factorial(j - m + 2)      |-------|      (j - m + 3) (j - m + 2
+                            \2 j + 1/                            
+
+   \\//                                                           
+   || |                    (1/2)  (7/2)                     (1/2) 
+  )|| |factorial(j - m + 2)      r      factorial(j - m + 3)      
+   // \                                                           
+
+           (1/2)          (1/2)                           
+  /2 j + 5\      /2 j + 7\                          (1/2) 
+  |-------|      |-------|      factorial(j - m + 1)      
+  \2 j + 1/      \2 j + 1/                                
+
+                                                \
+                  (1/2)            2           3|
+  factorial(j + m)      (2 j + 3) c  sin(theta) |
+                                                /
+
+
+;
+# 
+# 
+# 
+# Тородальная мода сферической стоячей волны, нормированная по обратному радиусу и по частоте, делённой на радиус  подставляем в уравнение Ламе
+# 
+> `Lame_equation_with_Toroidal_mode_of_spherical_standing_wave_&omega;r` := simplify(Lame_equation(simplify(`Toroidal_mode_of_spherical_standing_wave_&omega;r`(r, theta, phi, t, j, m, omega__0, delta))));
+Lame_equation_with_Toroidal_mode_of_spherical_standing_wave_&ome\
+
+            //                                                   
+            ||                (1/2)                              
+  ga;r := - ||factorial(j + m)      SphericalY(j, m, theta, phi) 
+            \\                                                   
+
+                      (1/2)                                      
+  factorial(j - m + 1)      (_phi (j + 1) cos(theta) + I m _theta
+
+             (1/2)                                         
+    /2 j + 3\                                              
+  ) |-------|      - SphericalY(j + 1, m, theta, phi) _phi 
+    \2 j + 1/                                              
+
+                                                             \     
+                      (1/2)                 (1/2)            |     
+  factorial(j + 1 + m)      factorial(j - m)      (j - m + 1)| rho 
+                                                             /     
+
+                                                              \/
+     /delta r + omega__0 t\        /    1  omega__0\         2| 
+  cos|--------------------| BesselJ|j + -, --------| omega__0 | 
+     \         r          /        \    2     c    /          / 
+
+  /                                                       
+  |                    (1/2)  (9/2)                 (1/2) 
+  |factorial(j - m + 1)      r      factorial(j + m)      
+  \                                                       
+
+           (1/2)           \   /                           
+  /2 j + 3\                |   |         /    1  omega__0\ 
+  |-------|      sin(theta)| = |8 BesselJ|j + -, --------| 
+  \2 j + 1/                /   \         \    2     c    / 
+
+  //                          /
+  ||                    (1/2) |
+  ||factorial(j - m + 2)      |
+  \\                          \
+                                                    (1/2)       
+-2 SphericalY(j + 1, m, theta, phi) factorial(j - m)      (j - m
+
+        /    1\                     (1/2) //1      //   2       
+   + 1) |j + -| factorial(j + 1 + m)      ||- _phi ||3 j  + 10 j
+        \    2/                           \\2      \\           
+
+     21\  2           2  2\           2
+   + --| r  + omega__0  t | cos(theta) 
+     4 /                  /            
+
+        2   /    3\                  
+   + I r  m |j + -| _theta cos(theta)
+            \    2/                  
+
+     1      // 2         31\  2           2  2\\    /
+   - - _phi ||m  - 3 j - --| r  + omega__0  t || cos|
+     2      \\           4 /                  //    \
+
+  delta r + omega__0 t\   5         /delta r + omega__0 t\   
+  --------------------| + - _phi sin|--------------------| t 
+           r          /   2         \         r          /   
+
+                                                         (1/2)   
+                                              \ /2 j + 3\        
+  omega__0 r (cos(theta) - 1) (cos(theta) + 1)| |-------|      + 
+                                              / \2 j + 1/        
+
+                  (1/2) /    3\                              
+  factorial(j + m)      |j + -| SphericalY(j, m, theta, phi) 
+                        \    2/                              
+
+                      (1/2) //             // 2       15\  2
+  factorial(j - m + 1)      ||(j + 1) _phi ||j  + j - --| r 
+                            \\             \\         4 /   
+
+             2  2\           3
+   + omega__0  t | cos(theta) 
+                 /            
+
+                // 2       15\  2           2  2\           2   
+   + I m _theta ||j  + j - --| r  + omega__0  t | cos(theta)  - 
+                \\         4 /                  /               
+
+       //   2      2      2   39     27\  2
+  _phi ||j m  - 3 j  + 3 m  - -- j - --| r 
+       \\                     4      4 /   
+
+             2  2        \           
+   + omega__0  t  (j + 1)| cos(theta)
+                         /           
+
+         // 2       19\  2           2  2\       \    /
+   - I m ||m  - j - --| r  + omega__0  t | _theta| cos|
+         \\         4 /                  /       /    \
+
+  delta r + omega__0 t\          /delta r + omega__0 t\           
+  --------------------| + 5 r sin|--------------------| (cos(theta
+           r          /          \         r          /           
+
+  ) + 1) t (cos(theta) - 1) (_phi (j + 1) cos(theta) + I m _theta
+
+             \          (1/2)                                       
+            \| /2 j + 5\                            (1/2)           
+  ) omega__0|| |-------|      + factorial(j + 2 + m)      (_phi (3 j
+            // \2 j + 1/                                            
+
+                                  2                 (1/2)       
+   + 8) cos(theta) + I m _theta) r  factorial(j - m)      (j - m
+
+        /    3\                                  
+   + 1) |j + -| SphericalY(j + 2, m, theta, phi) 
+        \    2/                                  
+
+                      (1/2)    /delta r + omega__0 t\            
+  factorial(j - m + 1)      cos|--------------------| (j - m + 2)
+                               \         r          /            
+
+  \                                    (1/2)   
+  |                     (1/2) /2 j + 7\        
+  | factorial(j - m + 3)      |-------|      - 
+  /                           \2 j + 1/        
+
+                      (1/2)       2                 (1/2)       
+  factorial(j - m + 2)      _phi r  factorial(j - m)      (j - m
+
+        /    3\                                  
+   + 1) |j + -| SphericalY(3 + j, m, theta, phi) 
+        \    2/                                  
+
+                                     (1/2)     
+                      (1/2) /2 j + 5\         /
+  factorial(j - m + 1)      |-------|      cos|
+                            \2 j + 1/         \
+
+  delta r + omega__0 t\                                 (1/2)   
+  --------------------| (j - m + 3) factorial(j + 3 + m)      (j
+           r          /                                         
+
+           \   \//                                  
+           |   | |                    (1/2)  (13/2) 
+   - m + 2)| mu| |factorial(j - m + 2)      r       
+           /   / \                                  
+
+                                     (1/2)          (1/2) 
+                      (1/2) /2 j + 5\      /2 j + 7\      
+  factorial(j - m + 1)      |-------|      |-------|      
+                            \2 j + 1/      \2 j + 1/      
+
+                      (1/2)                 (1/2)            
+  factorial(j - m + 3)      factorial(j + m)      (8 j + 12) 
+
+             \
+            3|
+  sin(theta) |
+             /
+
+
+;
+# 
+# Сфероидальную моду сферической стоячей волны, как есть - не нормируя,  подставляем в уравнение Ламе
+# 
+# Lame_equation_with_Spheroidal_mode_of_spherical_standing_wave := simplify(Lame_equation(simplify(Spheroidal_mode_of_spherical_standing_wave(r, theta, phi, t, j, m, omega, delta))));
+# 
+# Тут я вычисления остановил - видимо слишком сложное выражение получается
+# 
+# Сфероидальная мода сферической стоячей волны, нормированная по обратному радиусу и по частоте, делённой на радиус
+# 
+# `Lame_equation_with_Spheroidal_mode_of_spherical_standing_wave_&omega;r` := simplify(Lame_equation(simplify(`Spheroidal_mode_of_spherical_standing_wave_&omega;r`(r, theta, phi, t, j, m, omega__0, delta))));
+# 
+# 
+# 
+# Решаем уравнение Ламе с подставленным Чурляевским локом, нормированным по обратному радиусу с частотой, обратно пропорциональной радиусу
+> `Lame_equation_with_U&omega;r_00` := simplify(subs(j = 0, m = 0, `Lame_equation_with_U&omega;r`));
+# 
+> `Lame_equation_with_U&omega;r_10` := simplify(subs(j = 1, m = 0, `Lame_equation_with_U&omega;r`));
+# 
+> `Lame_equation_with_U&omega;r_11` := simplify(subs(j = 1, m = 1, `Lame_equation_with_U&omega;r`));
+# 
+# 
+# 
+# 
+> solve([Component(`Lame_equation_with_U&omega;r_00`, 1), Component(`Lame_equation_with_U&omega;r_00`, 2), Component(`Lame_equation_with_U&omega;r_00`, 3)]);
+ /                                                          
+ |c = c, delta = delta, lambda = -mu, mu = mu, r = r, rho = 
+<                                                           
+ |                                                          
+ \                                                          
+
+        1        //          /delta r + omega__0 t\         
+  -------------- ||12 r t tan|--------------------| omega__0
+     2         2 \\          \         r          /         
+  4 r  omega__0                                             
+
+               2  2      2\   \                        
+   + 4 omega__0  t  - 3 r | mu|, t = t, theta = theta, 
+                          /   /                        
+
+                          /       
+                          |       
+                     \    |       
+                     |   <        
+  omega__0 = omega__0 >,  |c = c, 
+                     |    |       
+                     /    \       
+
+                /    2         2       2\                 
+                |-4 t  omega__0  + 21 r |                 
+          arctan|-----------------------| r - omega__0 t  
+                \    24 r t omega__0    /                 
+  delta = ----------------------------------------------, 
+                                r                         
+
+                                                1        /         
+  lambda = lambda, mu = mu, r = r, rho = --------------- \4 lambda 
+                                             2         2           
+                                         24 r  omega__0            
+
+   2         2          2         2              2          2\  
+  t  omega__0  + 16 mu t  omega__0  + 15 lambda r  + 60 mu r /, 
+
+                                           \            
+                                           |            
+                                           |    /       
+                                            >   |       
+  t = t, theta = theta, omega__0 = omega__0| , < c = c, 
+                                           |    |       
+                                           /    \       
+
+  delta = delta, lambda = lambda, mu = mu, r = r, rho = - 
+
+        1        /     /delta r + omega__0 t\                    
+  -------------- |4 tan|--------------------| lambda t omega__0 r
+     2         2 \     \         r          /                    
+  4 r  omega__0                                                  
+
+          /delta r + omega__0 t\                
+   - 8 tan|--------------------| mu t omega__0 r
+          \         r          /                
+
+           2         2      2                2\         
+   - 4 mu t  omega__0  - 6 r  lambda - 3 mu r |, t = t, 
+                                              /         
+
+          1                        \    /                      
+  theta = - Pi, omega__0 = omega__0| ,  |c = c, delta = delta, 
+          2                         >  <                       
+                                   |    |                      
+                                   /    \                      
+
+                                                 1        /     /
+  lambda = lambda, mu = mu, r = r, rho = - -------------- |4 tan|
+                                              2         2 \     \
+                                           4 r  omega__0         
+
+  delta r + omega__0 t\                    
+  --------------------| lambda t omega__0 r
+           r          /                    
+
+          /delta r + omega__0 t\                
+   - 8 tan|--------------------| mu t omega__0 r
+          \         r          /                
+
+           2         2      2                2\         
+   - 4 mu t  omega__0  - 6 r  lambda - 3 mu r |, t = t, 
+                                              /         
+
+            1                        \ 
+  theta = - - Pi, omega__0 = omega__0| 
+            2                         >
+                                     | 
+                                     / 
+
+
+;
+# 
+# 
+> solve([Component(`Lame_equation_with_U&omega;r_10`, 1), Component(`Lame_equation_with_U&omega;r_10`, 2), Component(`Lame_equation_with_U&omega;r_10`, 3)]);
+ /          omega__0                                        
+{ c = --------------------, delta = delta, lambda = lambda, 
+ \    RootOf(_Z - tan(_Z))                                  
+
+  mu = mu, r = r, rho = rho, t = t, theta = theta, 
+
+                     \    /                                       
+  omega__0 = omega__0 },  |c = c, delta = delta, lambda = lambda, 
+                     /   <                                        
+                          |                                       
+                          \                                       
+
+                        5 (4 lambda + 5 mu)         
+  mu = mu, r = r, rho = -------------------, t = 0, 
+                                      2             
+                            4 omega__0              
+
+                /      /  2    \        /  2    \\  
+  theta = arctan\RootOf\_Z  - 7/, RootOf\_Z  - 2//, 
+
+                     \    /                                    
+  omega__0 = omega__0| ,  |c = c, delta = delta, lambda = -mu, 
+                      >  <                                     
+                     |    |                                    
+                     /    \                                    
+
+                              1        //          /
+  mu = mu, r = r, rho = -------------- ||12 r t tan|
+                           2         2 \\          \
+                        4 r  omega__0               
+
+  delta r + omega__0 t\                      2  2      2\   \  
+  --------------------| omega__0 + 4 omega__0  t  + 5 r | mu|, 
+           r          /                                 /   /  
+
+                                           \    /               1
+  t = t, theta = theta, omega__0 = omega__0| ,  |c = c, delta = -
+                                            >  <                r
+                                           |    |                
+                                           /    \                
+
+   /      /                1                  /
+   |arctan|---------------------------------- \
+   |      |  /            2    \               
+   \      \4 \8 sin(theta)  - 7/ r t omega__0  
+    2           2         2       2           2             2  2
+-4 t  sin(theta)  omega__0  + 45 r  sin(theta)  + 4 omega__0  t 
+
+         2\\               \                                         
+   - 35 r /| r - omega__0 t|, lambda = lambda, mu = mu, r = r, rho = 
+           |               |                                         
+           /               /                                         
+
+                  1                  //                   2
+  ---------------------------------- \\2 lambda sin(theta) 
+    /            2    \  2         2                       
+  4 \8 sin(theta)  - 7/ r  omega__0                        
+
+                    2                  \ /   2         2       2\
+   + 7 mu sin(theta)  - 2 lambda - 6 mu/ \4 t  omega__0  + 35 r /
+
+  \                                           \    /       
+  /, t = t, theta = theta, omega__0 = omega__0| ,  |c = c, 
+                                               >  <        
+                                              |    |       
+                                              /    \       
+
+  delta = delta, lambda = lambda, mu = mu, 
+
+              /     2    \                        1      /  /   
+  r = 2 RootOf\35 _Z  + 1/ t omega__0, rho = ----------- |5 |14 
+                                                       2 \  \   
+                                             2 omega__0         
+
+        /     2    \           /  35       /     2    \        \
+  RootOf\35 _Z  + 1/ lambda tan|- -- RootOf\35 _Z  + 1/ + delta|
+                               \  2                            /
+
+             /     2    \       /  35       /     2    \        \
+   - 7 RootOf\35 _Z  + 1/ mu tan|- -- RootOf\35 _Z  + 1/ + delta|
+                                \  2                            /
+
+                  \\         
+   + 2 lambda - mu||, t = t, 
+                  //         
+
+                /      /    2    \        /    2    \\  
+  theta = arctan\RootOf\2 _Z  - 7/, RootOf\2 _Z  - 1//, 
+
+                     \    /                                    
+  omega__0 = omega__0| , { c = c, delta = delta, lambda = -mu, 
+                      >   \                                    
+                     |                                         
+                     /                                         
+
+                                            1     
+  mu = mu, r = r, rho = rho, t = t, theta = - Pi, 
+                                            2     
+
+                     \    /                                    
+  omega__0 = omega__0 }, { c = c, delta = delta, lambda = -mu, 
+                     /    \                                    
+
+                                              1     
+  mu = mu, r = r, rho = rho, t = t, theta = - - Pi, 
+                                              2     
+
+                          /       
+                          |       
+                     \   <        
+  omega__0 = omega__0 },  |c = c, 
+                     /    \       
+
+                /    5 r     \                                  
+          arctan|------------| r - omega__0 t                   
+                \2 omega__0 t/                                  
+  delta = -----------------------------------, lambda = lambda, 
+                           r                                    
+
+                                            1     
+  mu = mu, r = r, rho = rho, t = t, theta = - Pi, 
+                                            2     
+
+                     \    /       
+                     |    |       
+                      >  <        
+  omega__0 = omega__0| ,  |c = c, 
+                     /    \       
+
+                /    5 r     \                                  
+          arctan|------------| r - omega__0 t                   
+                \2 omega__0 t/                                  
+  delta = -----------------------------------, lambda = lambda, 
+                           r                                    
+
+                                              1     
+  mu = mu, r = r, rho = rho, t = t, theta = - - Pi, 
+                                              2     
+
+                     \ 
+                     | 
+                      >
+  omega__0 = omega__0| 
+                     / 
+
+
+;
+# 
+# 
+> solve([Component(`Lame_equation_with_U&omega;r_11`, 1), Component(`Lame_equation_with_U&omega;r_11`, 2), Component(`Lame_equation_with_U&omega;r_11`, 3)]);
+{c = c, delta = delta, lambda = -mu, mu = mu, phi = phi, r = r, 
+
+  rho = rho, t = t, theta = theta, omega__0 = omega__0}, {c = c, 
+
+  delta = delta, lambda = lambda, mu = mu, phi = phi, r = r, 
+
+  rho = rho, t = t, theta = theta, 
+
+                                       /       
+                                       |       
+                                      <        
+  omega__0 = c RootOf(_Z - tan(_Z))},  |c = c, 
+                                       \       
+
+                /    5 r     \                                  
+          arctan|------------| r - omega__0 t                   
+                \2 omega__0 t/                                  
+  delta = -----------------------------------, lambda = lambda, 
+                           r                                    
+
+  mu = mu, phi = phi, r = r, rho = rho, t = t, theta = theta, 
+
+                     \                               
+                     |                               
+                      >   /          omega__0        
+  omega__0 = omega__0| , { c = --------------------, 
+                     /    \    RootOf(_Z - tan(_Z))  
+
+  delta = delta, lambda = lambda, mu = mu, phi = phi, r = r, 
+
+                                                      \    /
+  rho = rho, t = t, theta = theta, omega__0 = omega__0 }, { 
+                                                      /    \
+
+                 7       /    2    \         /      /    2    \\  
+  c = c, delta = - RootOf\7 _Z  + 5/ + arctan\RootOf\7 _Z  + 5//, 
+                 2                                                
+
+  lambda = lambda, mu = mu, phi = phi, 
+
+      2         /    2    \                           
+  r = - t RootOf\7 _Z  + 5/ omega__0, rho = 0, t = t, 
+      5                                               
+
+                                    \    /                      
+  theta = theta, omega__0 = omega__0 },  |c = c, delta = delta, 
+                                    /   <                       
+                                         |                      
+                                         \                      
+
+  lambda = lambda, mu = mu, phi = phi, r = r, rho = - 
+
+        1        /     /delta r + omega__0 t\                    
+  -------------- |4 tan|--------------------| lambda t omega__0 r
+     2         2 \     \         r          /                    
+  4 r  omega__0                                                  
+
+          /delta r + omega__0 t\                
+   - 8 tan|--------------------| mu t omega__0 r
+          \         r          /                
+
+           2         2       2                 2\         
+   - 4 mu t  omega__0  - 10 r  lambda - 15 mu r |, t = t, 
+                                                /         
+
+          1                        \    /                      
+  theta = - Pi, omega__0 = omega__0| ,  |c = c, delta = delta, 
+          2                         >  <                       
+                                   |    |                      
+                                   /    \                      
+
+  lambda = lambda, mu = mu, phi = phi, r = r, rho = - 
+
+        1        /     /delta r + omega__0 t\                    
+  -------------- |4 tan|--------------------| lambda t omega__0 r
+     2         2 \     \         r          /                    
+  4 r  omega__0                                                  
+
+          /delta r + omega__0 t\                
+   - 8 tan|--------------------| mu t omega__0 r
+          \         r          /                
+
+           2         2       2                 2\         
+   - 4 mu t  omega__0  - 10 r  lambda - 15 mu r |, t = t, 
+                                                /         
+
+            1                        \ 
+  theta = - - Pi, omega__0 = omega__0| 
+            2                         >
+                                     | 
+                                     / 
+
+
+;
+# 
+# 
+# 
+# Для лока 0,0 удовлетворительных решений не найдено
+# 
+# Но в предыдущей работе было найдено решение уравнение (107)
+# {c = omega*r/RootOf(tan(_Z)*_Z^2 - 8*tan(_Z) + 5*_Z), delta = delta, lambda = lambda, mu = mu, omega = omega, r = r, rho = (RootOf(tan(_Z)*_Z^2 - 8*tan(_Z) + 5*_Z)^2*lambda + 4*RootOf(tan(_Z)*_Z^2 - 8*tan(_Z) + 5*_Z)^2*mu + 2*lambda + 8*mu)/(5*omega^2*r^2), t = t, theta = theta};
+> 
+# 
+# 
+# rho = (RootOf(tan(_Z)*_Z^2 - 8*tan(_Z) + 5*_Z)^2*(lambda + 4*mu) + 2*lambda + 8*mu)/(5*omega^2*r^2);
+# 
+# rho = RootOf(tan(_Z)*_Z^2 - 8*tan(_Z) + 5*_Z)^2*(lambda + 4*mu)/(5*omega^2*r^2) + (2*lambda + 8*mu)/(5*omega^2*r^2);
+> 
+;
+> 
+;
+# rho = (lambda + 4*mu)/(5*c^2) + (2*lambda + 8*mu)/(5*omega^2*r^2);
+# Если в данном решении положить 
+> 
+;
+# omega = omega__0/r;
+# тогда
+# 
+# 
+> subs(omega = omega__0/r, c = omega*r/RootOf(tan(_Z)*_Z^2 - 8*tan(_Z) + 5*_Z));
+                              omega__0               
+           c = --------------------------------------
+                     /          2                   \
+               RootOf\tan(_Z) _Z  - 8 tan(_Z) + 5 _Z/
+
+;
+> solve(c = omega__0/RootOf(tan(_Z)*_Z^2 - 8*tan(_Z) + 5*_Z), omega__0);
+                    /          2                   \
+            c RootOf\tan(_Z) _Z  - 8 tan(_Z) + 5 _Z/
+
+;
+> 
+;
+> 
+;
+> subs(omega = omega__0/r, rho = (lambda + 4*mu)/(5*c^2) + (2*lambda + 8*mu)/(5*omega^2*r^2));
+                   4 mu + lambda   2 lambda + 8 mu
+             rho = ------------- + ---------------
+                          2                    2  
+                       5 c           5 omega__0   
+
+;
+> 
+;
+> subs(omega__0 = c*RootOf(tan(_Z)*_Z^2 - 8*tan(_Z) + 5*_Z), rho = (4*mu + lambda)/(5*c^2) + (2*lambda + 8*mu)/(5*omega__0^2));
+      4 mu + lambda                 2 lambda + 8 mu               
+rho = ------------- + --------------------------------------------
+             2                                                   2
+          5 c            2       /          2                   \ 
+                      5 c  RootOf\tan(_Z) _Z  - 8 tan(_Z) + 5 _Z/ 
+
+;
+> 
+;
+> 
+;
+# Таким образом получается целый спектр решений с различными значениями базовой частоты и скорости 
+# 
+> plot(tan(_Z)*_Z^2 - 8*tan(_Z) + 5*_Z, _Z = -9*Pi .. 9*Pi);
+
+# 
+# Например
+# 
+> fsolve(tan(_Z)*_Z^2 - 8*tan(_Z) + 5*_Z, _Z = Pi .. 2*Pi)/Pi;
+                          1.710215351
+
+;
+> fsolve(tan(_Z)*_Z^2 - 8*tan(_Z) + 5*_Z, _Z = -2*Pi .. -Pi)/Pi;
+                          -1.710215351
+
+;
+> fsolve(tan(_Z)*_Z^2 - 8*tan(_Z) + 5*_Z, _Z = 2*Pi .. 3*Pi)/Pi;
+                          2.821501100
+
+;
+> fsolve(tan(_Z)*_Z^2 - 8*tan(_Z) + 5*_Z, _Z = 3*Pi .. 4*Pi)/Pi;
+                          3.869432985
+
+;
+# 
+# Решение 1
+# 
+> `#mrow(mi("omega__0"),mo("&equals;"),mn("1.710215351"))`;
+> solve(rho = (4*mu + lambda)/(5*c^2) + (2*lambda + 8*mu)/(5*c^2*1.710215351^2), c);
+                                             (1/2)  
+          0.5803100714 (rho (4. mu + lambda))       
+          ----------------------------------------, 
+                            rho                     
+
+                                                 (1/2)
+              0.5803100714 (rho (4. mu + lambda))     
+            - ----------------------------------------
+                                rho                   
+
+
+;
+# 
+# Решение 2
+# 
+> `#mrow(mi("omega__0"),mo("&equals;"),mn("2.821501100"))`;
+> solve(rho = (4*mu + lambda)/(5*c^2) + (2*lambda + 8*mu)/(5*c^2*2.821501100^2), c);
+                                             (1/2)  
+          0.5002457140 (rho (4. mu + lambda))       
+          ----------------------------------------, 
+                            rho                     
+
+                                                 (1/2)
+              0.5002457140 (rho (4. mu + lambda))     
+            - ----------------------------------------
+                                rho                   
+
+
+;
+> 
+;
+> 
+;
+# Решение 3
+# 
+> `#mrow(mi("omega__0"),mo("&equals;"),mn("3.869432985"))`;
+> solve(rho = (4*mu + lambda)/(5*c^2) + (2*lambda + 8*mu)/(5*c^2*3.869432985^2), c);
+                                             (1/2)  
+          0.4761466419 (rho (4. mu + lambda))       
+          ----------------------------------------, 
+                            rho                     
+
+                                                 (1/2)
+              0.4761466419 (rho (4. mu + lambda))     
+            - ----------------------------------------
+                                rho                   
+
+
+;
+# 
+# 
+# 
+# 
+# Для лока (1,0) найдено решение
+> {c = omega__0/RootOf(_Z - tan(_Z)), delta = delta, lambda = lambda, mu = mu, r = r, rho = rho, t = t, theta = theta, omega__0 = omega__0};
+   /          omega__0                                        
+  { c = --------------------, delta = delta, lambda = lambda, 
+   \    RootOf(_Z - tan(_Z))                                  
+
+    mu = mu, r = r, rho = rho, t = t, theta = theta, 
+
+                       \ 
+    omega__0 = omega__0 }
+                       / 
+
+
+;
+# 
+# И аналогичное же решение найдено для лока (1,1)
+> {c = c, delta = delta, lambda = lambda, mu = mu, phi = phi, r = r, rho = rho, t = t, theta = theta, omega__0 = c*RootOf(_Z - tan(_Z))};
+  {c = c, delta = delta, lambda = lambda, mu = mu, phi = phi, 
+
+    r = r, rho = rho, t = t, theta = theta, 
+
+    omega__0 = c RootOf(_Z - tan(_Z))}
+
+
+;
+# 
+# 
+# 
+# Таким образом сферическая стоячая волна, нормированная по обратному радиусу с частотой, обратно пропорциональной радиусу и с направлением колебаний параллельно оси Z удовлетворяет уравнению Ламе. Однако в случае волновых чисел 1,0 и 1,1 какой либо зависимости между скоростью, плотностью и упругими константами, к сожалению не обнаружено. 
+# 
+# 
+> 
+;
+# Теперь решаем уравнение Ламе с тороидальной модой колебаний в сферической стоячей волне, нормированной по обратному радиусу с частотой, обратно пропорциональной радиусу
+# 
+> `Lame_equation_with_Toroidal_mode_of_spherical_standing_wave_&omega;r_00` := simplify(subs(j = 0, m = 0, `Lame_equation_with_Toroidal_mode_of_spherical_standing_wave_&omega;r`));
+> `Lame_equation_with_Toroidal_mode_of_spherical_standing_wave_&omega;r_10` := simplify(subs(j = 1, m = 0, `Lame_equation_with_Toroidal_mode_of_spherical_standing_wave_&omega;r`));
+> `Lame_equation_with_Toroidal_mode_of_spherical_standing_wave_&omega;r_11` := simplify(subs(j = 1, m = 1, `Lame_equation_with_Toroidal_mode_of_spherical_standing_wave_&omega;r`));
+# 
+# 
+# 
+# 
+# 
+> solve([Component(`Lame_equation_with_Toroidal_mode_of_spherical_standing_wave_&omega;r_10`, 1), Component(`Lame_equation_with_Toroidal_mode_of_spherical_standing_wave_&omega;r_10`, 2), Component(`Lame_equation_with_Toroidal_mode_of_spherical_standing_wave_&omega;r_10`, 3)]);
+ /          omega__0                                       
+{ c = --------------------, delta = delta, mu = mu, r = r, 
+ \    RootOf(_Z - tan(_Z))                                 
+
+                                                      \    /
+  rho = rho, t = t, theta = theta, omega__0 = omega__0 },  |
+                                                      /   < 
+                                                           |
+                                                           \
+
+                                                    1        /   
+  c = c, delta = delta, mu = mu, r = r, rho = -------------- |mu 
+                                                 2         2 \   
+                                              4 r  omega__0      
+
+  /          /delta r + omega__0 t\                      2  2
+  |20 r t tan|--------------------| omega__0 + 4 omega__0  t 
+  \          \         r          /                          
+
+        2\\                                           \ 
+   - 7 r ||, t = t, theta = theta, omega__0 = omega__0| 
+         //                                            >
+                                                      | 
+                                                      / 
+
+
+;
+# 
+# 
+# 
+# 
+> solve([Component(`Lame_equation_with_Toroidal_mode_of_spherical_standing_wave_&omega;r_11`, 1), Component(`Lame_equation_with_Toroidal_mode_of_spherical_standing_wave_&omega;r_11`, 2), Component(`Lame_equation_with_Toroidal_mode_of_spherical_standing_wave_&omega;r_11`, 3)]);
+ /          omega__0                                           
+{ c = --------------------, delta = delta, mu = mu, phi = phi, 
+ \    RootOf(_Z - tan(_Z))                                     
+
+                                                             \   
+  r = r, rho = rho, t = t, theta = theta, omega__0 = omega__0 }, 
+                                                             /   
+
+   /                                                       
+   |c = c, delta = delta, mu = mu, phi = phi, r = r, rho = 
+  <                                                        
+   |                                                       
+   \                                                       
+
+        1        /   /          /delta r + omega__0 t\         
+  -------------- |mu |20 r t tan|--------------------| omega__0
+     2         2 \   \          \         r          /         
+  4 r  omega__0                                                
+
+               2  2      2\\                        
+   + 4 omega__0  t  - 7 r ||, t = t, theta = theta, 
+                          //                        
+
+                     \ 
+  omega__0 = omega__0| 
+                      >
+                     | 
+                     / 
+
+
+;
+# 
+# 
+> 
+;
+> 
+;
+> 
+;
+> 
+;
+# 
+> Lame_equation_with_Toroidal_mode_of_spherical_standing_wave_00 := simplify(subs(j = 0, m = 0, Lame_equation_with_Toroidal_mode_of_spherical_standing_wave));
+Lame_equation_with_Toroidal_mode_of_spherical_standing_wave_00 := 
+
+  0 = 0
+
+
+;
+> Lame_equation_with_Toroidal_mode_of_spherical_standing_wave_10 := simplify(subs(j = 1, m = 0, Lame_equation_with_Toroidal_mode_of_spherical_standing_wave));
+Lame_equation_with_Toroidal_mode_of_spherical_standing_wave_10 := 
+
+                    1                   / (1/2)      (1/2) /
+  ------------------------------------- |3      rho 2      |
+                       (1/2)            \                  \
+     (5/2)    /omega r\                                     
+  2 r      Pi |-------|      sin(theta)                     
+              \   c   /                                     
+    /omega r\              /omega r\  \                                 
+-cos|-------| omega r + sin|-------| c| cos(omega t + delta) omega _phi 
+    \   c   /              \   c   /  /                                 
+
+  /               2\\     
+  \-1 + cos(theta) /| = - 
+                    /     
+
+                                                /
+                        1                       |
+  --------------------------------------------- |
+           (1/2)                                \
+  /omega r\       (9/2)           2           3  
+  |-------|      r      omega Pi c  sin(theta)   
+  \   c   /                                      
+
+                                                     /           
+                  2     (1/2)                 2      |       /1  
+  (cos(theta) + 1)  mu 3      (cos(theta) - 1)  _phi |BesselJ|-, 
+                                                     \       \2  
+
+                                        (1/2)                 
+  omega r\        2  2   (1/2) /omega r\          /  1        
+  -------| c omega  r  Pi      |-------|      + 2 |- - omega r
+     c   /                     \   c   /          \  2        
+
+      \ /   /omega r\              /omega r\  \ /1            \ 
+   + c| |cos|-------| omega r - sin|-------| c| |- omega r + c| 
+      / \   \   c   /              \   c   /  / \2            / 
+
+        \                     \
+   (1/2)|                     |
+  2     | cos(omega t + delta)|
+        /                     /
+
+
+;
+> 
+;
+> Lame_equation_with_Toroidal_mode_of_spherical_standing_wave_11 := simplify(subs(j = 1, m = 1, Lame_equation_with_Toroidal_mode_of_spherical_standing_wave));
+Lame_equation_with_Toroidal_mode_of_spherical_standing_wave_11 := 
+
+                      1                   /    /
+  - ------------------------------------- |rho |
+                         (1/2)            \    \
+       (5/2)    /omega r\                       
+    2 r      Pi |-------|      sin(theta)       
+                \   c   /                       
+    /omega r\              /omega r\  \                            
+-cos|-------| omega r + sin|-------| c| cos(omega t + delta) omega 
+    \   c   /              \   c   /  /                            
+
+                  (1/2)                 (1/2)             (1/2) 
+  (cos(theta) + 1)      (cos(theta) - 1)      exp(I phi) 3      
+
+                              \   
+  (_phi cos(theta) - I _theta)| = 
+                              /   
+
+                                                /
+                        1                       |
+  --------------------------------------------- |
+                  (1/2)                         \
+   (9/2) /omega r\                2           3  
+  r      |-------|      omega Pi c  sin(theta)   
+         \   c   /                               
+
+                  (3/2)                                         
+  (cos(theta) - 1)      (I _theta - _phi cos(theta)) cos(omega t
+
+                                                              /
+                        (1/2)                    (3/2)  (1/2) |
+   + delta) exp(I phi) 3      mu (cos(theta) + 1)      2      |
+                                                              \
+                                                     (1/2)      
+  1        /1  omega r\        2  2   (1/2) /omega r\        /1 
+- - BesselJ|-, -------| c omega  r  Pi      |-------|      + |- 
+  2        \2     c   /                     \   c   /        \2 
+
+             \ /  1            \ /    /omega r\        
+  omega r + c| |- - omega r + c| |-cos|-------| omega r
+             / \  2            / \    \   c   /        
+
+                           \\
+        /omega r\  \  (1/2)||
+   + sin|-------| c| 2     ||
+        \   c   /  /       //
+
+
+;
+> 
+;
+# 
+# 
+> solve([Component(Lame_equation_with_Toroidal_mode_of_spherical_standing_wave_10, 1), Component(Lame_equation_with_Toroidal_mode_of_spherical_standing_wave_10, 2), Component(Lame_equation_with_Toroidal_mode_of_spherical_standing_wave_10, 3)]);
+ /          omega r                                               
+{ c = --------------------, delta = delta, mu = 0, omega = omega, 
+ \    RootOf(_Z - tan(_Z))                                        
+
+                                        \    /       
+  r = r, rho = rho, t = t, theta = theta },  |c = c, 
+                                        /   <        
+                                             |       
+                                             \       
+
+  delta = delta, mu = mu, omega = omega, r = r, rho = - 
+
+                     1                    /   /
+  --------------------------------------- |mu |
+   2      2  2 /     /omega r\          \ \   \
+  c  omega  r  |c tan|-------| - omega r|      
+               \     \   c   /          /      
+          2  2    /omega r\        3  3      3    /omega r\
+-3 c omega  r  tan|-------| + omega  r  + 4 c  tan|-------|
+                  \   c   /                       \   c   /
+
+        2        \\                      \    /       
+   - 4 c  omega r||, t = t, theta = theta| , { c = c, 
+                 //                       >   \       
+                                         |            
+                                         /            
+
+                     1                                    
+  delta = -omega t + - Pi, mu = mu, omega = omega, r = r, 
+                     2                                    
+
+                                 \ 
+  rho = rho, t = t, theta = theta }
+                                 / 
+
+
+;
+# 
+# 
+> solve([Component(Lame_equation_with_Toroidal_mode_of_spherical_standing_wave_11, 1), Component(Lame_equation_with_Toroidal_mode_of_spherical_standing_wave_11, 2), Component(Lame_equation_with_Toroidal_mode_of_spherical_standing_wave_11, 3)]);
+ /                          1                             
+{ c = c, delta = -omega t + - Pi, mu = mu, omega = omega, 
+ \                          2                             
+
+                                                   \    /
+  phi = phi, r = r, rho = rho, t = t, theta = theta }, { 
+                                                   /    \
+
+            omega r                                               
+  c = --------------------, delta = delta, mu = 0, omega = omega, 
+      RootOf(_Z - tan(_Z))                                        
+
+                                              1   \    /
+  phi = phi, r = r, rho = rho, t = t, theta = - Pi }, { 
+                                              2   /    \
+
+            omega r                                               
+  c = --------------------, delta = delta, mu = 0, omega = omega, 
+      RootOf(_Z - tan(_Z))                                        
+
+                                                1   \    /       
+  phi = phi, r = r, rho = rho, t = t, theta = - - Pi },  |c = c, 
+                                                2   /   <        
+                                                         |       
+                                                         \       
+
+  delta = delta, mu = mu, omega = omega, phi = phi, r = r, rho = 
+
+                       1                    /   /
+  - --------------------------------------- |mu |
+     2      2  2 /     /omega r\          \ \   \
+    c  omega  r  |c tan|-------| - omega r|      
+                 \     \   c   /          /      
+          2  2    /omega r\        3  3      3    /omega r\
+-3 c omega  r  tan|-------| + omega  r  + 4 c  tan|-------|
+                  \   c   /                       \   c   /
+
+        2        \\                 1   \    /       
+   - 4 c  omega r||, t = t, theta = - Pi| ,  |c = c, 
+                 //                 2    >  <        
+                                        |    |       
+                                        /    \       
+
+  delta = delta, mu = mu, omega = omega, phi = phi, r = r, rho = 
+
+                       1                    /   /
+  - --------------------------------------- |mu |
+     2      2  2 /     /omega r\          \ \   \
+    c  omega  r  |c tan|-------| - omega r|      
+                 \     \   c   /          /      
+          2  2    /omega r\        3  3      3    /omega r\
+-3 c omega  r  tan|-------| + omega  r  + 4 c  tan|-------|
+                  \   c   /                       \   c   /
+
+        2        \\                   1   \    /
+   - 4 c  omega r||, t = t, theta = - - Pi| ,  |
+                 //                   2    >  < 
+                                          |    |
+                                          /    \
+
+                          omega r                      
+  c = -----------------------------------------------, 
+            /             2     3                   \  
+      RootOf\-3 tan(_Z) _Z  + _Z  + 4 tan(_Z) - 4 _Z/  
+
+  delta = delta, mu = mu, omega = omega, phi = phi, r = r, 
+
+                               \    /                             
+  rho = 0, t = t, theta = theta| , { c = c, delta = delta, mu = - 
+                                >   \                             
+                               |                                  
+                               /                                  
+
+  / 2      2  2     /     /omega r\          \\//
+  |c  omega  r  rho |c tan|-------| - omega r|| |
+  \                 \     \   c   /          // \
+          2  2    /omega r\        3  3      3    /omega r\
+-3 c omega  r  tan|-------| + omega  r  + 4 c  tan|-------|
+                  \   c   /                       \   c   /
+
+        2        \                                              
+   - 4 c  omega r|, omega = omega, phi = phi, r = r, rho = rho, 
+                 /                                              
+
+                      \ 
+  t = t, theta = theta }
+                      / 
+
+
+;
+# 
+> 
+;

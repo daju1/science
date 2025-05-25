@@ -1,0 +1,769 @@
+> 
+;
+# Займемся проверкой теории упругой вселенной, опубликованной А.И. Чурляевым.
+# 
+# Для конструирования решения линейного волнового уравнения в виде синусоидальной сферической стоячей волны нам понадобятся следующие функции.
+# 
+# Сферическая Функция Бесселя - полуцелого порядка
+> 
+;
+> 
+
+;
+> FunctionAdvisor(definition, BesselJ);
+    [                 a          /               1  2\  
+    [                z  hypergeom|[], [a + 1], - - z |  
+    [                            \               4   /  
+    [BesselJ(a, z) = ---------------------------------, 
+    [                                       a           
+    [                         GAMMA(a + 1) 2            
+
+                                                           ]
+                                                           ]
+                                                           ]
+      MathematicalFunctions:-with no restrictions on (a, z)]
+                                                           ]
+                                                           ]
+
+
+;
+> plot(BesselJ(0 + 1/2, x), x = 0 .. 24);
+
+> plot(sqrt(2/Pi)*sin(z)/sqrt(z), z = 0 .. 24);
+
+> plot(BesselJ(1 + 1/2, x), x = 0 .. 24);
+
+> plot(sqrt(2/Pi)*(-cos(z)/sqrt(z) + sin(z)/(z*sqrt(z))), z = 0 .. 24);
+
+> plot(BesselJ(2 + 1/2, x), x = 0 .. 24);
+
+# И сферическая поверхностная гармоника
+# 
+> FunctionAdvisor(definition, SphericalY);
+[                                     
+[                                     
+[SphericalY(lambda, mu, theta, phi) = 
+[                                     
+[                                     
+
+                                /                     (1/2) 
+                1               |    mu /2 lambda + 1\      
+  ----------------------------- |(-1)   |------------|      
+                          (1/2) \       \     Pi     /      
+  2 factorial(lambda + mu)                                  
+
+                        (1/2)                                     
+  factorial(lambda - mu)      exp(I phi mu) LegendreP(lambda, mu, 
+
+             \  
+             |  
+  cos(theta))|, 
+             /  
+
+                                                             ]
+                                                             ]
+  And(Not((lambda + mu)::negint), Not((lambda - mu)::negint))]
+                                                             ]
+                                                             ]
+
+
+;
+> FunctionAdvisor(definition, LegendreP);
+  [                           /                  1   1  \  
+  [LegendreP(a, z) = hypergeom|[-a, a + 1], [1], - - - z|, 
+  [                           \                  2   2  /  
+
+                                                         ]  
+    MathematicalFunctions:-with no restrictions on (a, z)], 
+                                                         ]  
+
+    [                     
+    [                     
+    [                     
+    [LegendreP(a, b, z) = 
+    [                     
+    [                     
+
+           (1/2 b)          /                      1   1  \  
+    (z + 1)        hypergeom|[-a, a + 1], [1 - b], - - - z|  
+                            \                      2   2  /  
+    -------------------------------------------------------, 
+                         (1/2 b)                             
+                  (z - 1)        GAMMA(1 - b)                
+
+                                  ]
+                                  ]
+                                  ]
+    And((1 - b)::(Not(nonposint)))]
+                                  ]
+                                  ]
+
+
+;
+> plot(Re(LegendreP(4, 4, x)), x = -1 .. 1);
+
+> plot(Im(LegendreP(1, 1, x)), x = -1 .. 1);
+
+> plot(Im(LegendreP(2, 1, x)), x = -1 .. 1);
+
+> plot(Re(LegendreP(2, 2, x)), x = -1 .. 1);
+
+> plot(Im(LegendreP(3, 1, x)), x = -1 .. 1);
+
+> plot(Re(LegendreP(3, 2, x)), x = -1 .. 1);
+
+> plot(Im(LegendreP(3, 3, x)), x = -1 .. 1);
+
+> 
+;
+> with(plots);
+> sphereplot(SphericalY(0, 0, theta, phi), phi = 0 .. 2*Pi, theta = 0 .. Pi);
+
+> with(plots);
+> sphereplot(SphericalY(1, 0, theta, phi), phi = 0 .. 2*Pi, theta = 0 .. Pi);
+
+> with(plots);
+> sphereplot(SphericalY(2, 0, theta, phi), phi = 0 .. 2*Pi, theta = 0 .. Pi);
+
+> with(plots);
+> sphereplot(SphericalY(3, 0, theta, phi), phi = 0 .. 2*Pi, theta = 0 .. Pi);
+
+> with(plots);
+> sphereplot(Re(SphericalY(1, 1, theta, phi)), phi = 0 .. 2*Pi, theta = 0 .. Pi);
+
+> with(plots);
+> sphereplot(Im(SphericalY(1, 1, theta, phi)), phi = 0 .. 2*Pi, theta = 0 .. Pi);
+
+> with(plots);
+> sphereplot(Re(SphericalY(2, 1, theta, phi)), phi = 0 .. 2*Pi, theta = 0 .. Pi);
+
+> 
+;
+> 
+;
+> with(plots);
+> sphereplot(Im(SphericalY(2, 1, theta, phi)), phi = 0 .. 2*Pi, theta = 0 .. Pi);
+
+> with(plots);
+> sphereplot(Im(SphericalY(2, 2, theta, phi)), phi = 0 .. 2*Pi, theta = 0 .. Pi);
+
+> with(plots);
+> sphereplot(Re(SphericalY(2, 2, theta, phi)), phi = 0 .. 2*Pi, theta = 0 .. Pi);
+
+> 
+;
+> 
+;
+> 
+;
+# 
+# Сконструируем из этих функций частное решение волнового уравнения, приведенное в книге Чурляева, сферические стоячие волны:
+# 
+> W := (a, lambda, mu, r, theta, phi, t, omega, delta) -> BesselJ(a + 1/2, r*omega/c)*SphericalY(lambda, mu, theta, phi)*cos(omega*t + delta)/sqrt(r);
+proc (a, lambda, mu, r, theta, phi, t, omega, delta) options 
+
+   operator, arrow; BesselJ(a+1/2, r*omega/c)*SphericalY(lambda,\
+
+   mu, theta, phi)*cos(omega*t+delta)/sqrt(r) end proc
+
+
+;
+# Проверим сами себя путём подстановки в линейное волновое уравнение в сферических координатах данное решение
+#  
+# Запишем Лапласиан от сферической стоячей волны в сферических координатах
+> LaplW := (a, lambda, mu, r, theta, phi, t, omega, delta) -> (diff(r^2*diff(W(a, lambda, mu, r, theta, phi, t, omega, delta), r), r) + diff(sin(theta)*diff(W(a, lambda, mu, r, theta, phi, t, omega, delta), theta), theta)/sin(theta) + diff(W(a, lambda, mu, r, theta, phi, t, omega, delta), phi, phi)/sin(theta)^2)/r^2;
+proc (a, lambda, mu, r, theta, phi, t, omega, delta) options 
+
+   operator, arrow; (diff(r^2*(diff(W(a, lambda, mu, r, theta, 
+
+   phi, t, omega, delta), r)), r)+(diff(sin(theta)*(diff(W(a, 
+
+   lambda, mu, r, theta, phi, t, omega, delta), theta)), 
+
+   theta))/sin(theta)+(diff(W(a, lambda, mu, r, theta, phi, t, 
+
+   omega, delta), phi, phi))/sin(theta)^2)/r^2 end proc
+
+
+;
+# Попробуем упростить
+> 
+;
+> simplify(LaplW(a, lambda, mu, r, theta, phi, t, omega, delta));
+  //              (1/2) /                                   
+  ||/2 lambda + 5\      |                                   
+- |||------------|      |SphericalY(lambda, mu, theta, phi) 
+  \\\2 lambda + 1/      \                                   
+
+                        (1/2) 
+  factorial(lambda + mu)      
+
+                                            (1/2) /// 2         2
+  (factorial(lambda - mu) (lambda - mu + 1))      \\\a  - lambda 
+
+               \  2        2  2\           2
+   + a - lambda/ c  - omega  r / cos(theta) 
+
+     /  2     2                 \  2        2  2\ 
+   + \-a  + mu  - a - lambda - 1/ c  + omega  r / 
+
+                (1/2)                                             
+  /2 lambda + 3\           2                                      
+  |------------|      + 2 c  SphericalY(lambda + 1, mu, theta, phi
+  \2 lambda + 1/                                                  
+
+                                                         (1/2) 
+  ) cos(theta) (factorial(lambda + mu) (lambda + mu + 1))      
+
+                                                            \ 
+                    /         3\                       (1/2)| 
+  (lambda - mu + 1) |lambda + -| factorial(lambda - mu)     | 
+                    \         2/                            / 
+
+  (factorial(lambda - mu) (lambda - mu + 1) (lambda + 2 - mu))^(1/2
+
+                    (1/2)                             
+      /2 lambda + 3\                            (1/2) 
+  ) - |------------|      factorial(lambda - mu)      
+      \2 lambda + 1/                                  
+
+                                            (1/2)            
+  (factorial(lambda - mu) (lambda - mu + 1))      (factorial(
+
+  lambda + mu) (lambda + mu + 1) (lambda + 2 + mu))^(1/2) 
+
+                                          2                   
+  SphericalY(lambda + 2, mu, theta, phi) c  (lambda + 2 - mu) 
+
+                   \                                             
+                   |        /    1  r omega\                     
+  (lambda - mu + 1)| BesselJ|a + -, -------| cos(omega t + delta)
+                   /        \    2     c   /                     
+
+  \//                                                
+  | |                                          (1/2) 
+  | |(factorial(lambda - mu) (lambda - mu + 1))      
+  / \                                                
+
+                (1/2)                             
+  /2 lambda + 5\                            (1/2) 
+  |------------|      factorial(lambda + mu)      
+  \2 lambda + 1/                                  
+
+                (1/2)                                            
+  /2 lambda + 3\       (5/2)                                     
+  |------------|      r      (factorial(lambda - mu) (lambda - mu
+  \2 lambda + 1/                                                 
+
+                                               \
+                                           2  2|
+   + 1) (lambda + 2 - mu))^(1/2) sin(theta)  c |
+                                               /
+
+
+;
+> 
+;
+> 
+;
+# Ну а теперь волновое уравнение полностью
+> pde := (a, lambda, mu, r, theta, phi, t, omega, delta) -> LaplW(a, lambda, mu, r, theta, phi, t, omega, delta) - diff(W(a, lambda, mu, r, theta, phi, t, omega, delta), t $ 2)/c^2;
+ proc (a, lambda, mu, r, theta, phi, t, omega, delta) options 
+
+    operator, arrow; LaplW(a, lambda, mu, r, theta, phi, t, 
+
+    omega, delta)-(diff(W(a, lambda, mu, r, theta, phi, t, 
+
+    omega, delta), t$2))/c^2 end proc
+
+
+;
+# И его попробуем упростить
+> simplify(pde(a, lambda, mu, r, theta, phi, t, omega, delta));
+/                        /
+|       /    1  r omega\ |
+|BesselJ|a + -, -------| |
+\       \    2     c   / \
+               (1/2) /                                   
+ /2 lambda + 5\      |                                   
+-|------------|      |SphericalY(lambda, mu, theta, phi) 
+ \2 lambda + 1/      \                                   
+
+                        (1/2) // 2         2             \ 
+  factorial(lambda + mu)      \\a  - lambda  + a - lambda/ 
+
+            2    2     2                 \ 
+  cos(theta)  - a  + mu  - a - lambda - 1/ 
+
+                                            (1/2) 
+  (factorial(lambda - mu) (lambda - mu + 1))      
+
+                (1/2)                                             
+  /2 lambda + 3\          /         3\                            
+  |------------|      + 2 |lambda + -| SphericalY(lambda + 1, mu, 
+  \2 lambda + 1/          \         2/                            
+
+  theta, phi) cos(theta) 
+
+                                            (1/2)             
+  (factorial(lambda + mu) (lambda + mu + 1))      (lambda - mu
+
+                                   \                         
+                              (1/2)|                         
+   + 1) factorial(lambda - mu)     | (factorial(lambda - mu) 
+                                   /                         
+
+  (lambda - mu + 1) (lambda + 2 - mu))^(1/2) + 
+
+                (1/2)                             
+  /2 lambda + 3\                            (1/2) 
+  |------------|      factorial(lambda - mu)      
+  \2 lambda + 1/                                  
+
+                                            (1/2)            
+  (factorial(lambda - mu) (lambda - mu + 1))      (factorial(
+
+  lambda + mu) (lambda + mu + 1) (lambda + 2 + mu))^(1/2) 
+
+  SphericalY(lambda + 2, mu, theta, phi) (lambda + 2 - mu) (lambda
+
+            \                     \//
+            |                     | |
+   - mu + 1)| cos(omega t + delta)| |
+            /                     / \
+
+                                            (1/2) 
+  (factorial(lambda - mu) (lambda - mu + 1))      
+
+                (1/2)                             
+  /2 lambda + 5\                            (1/2) 
+  |------------|      factorial(lambda + mu)      
+  \2 lambda + 1/                                  
+
+                (1/2)                                            
+  /2 lambda + 3\       (5/2)                                     
+  |------------|      r      (factorial(lambda - mu) (lambda - mu
+  \2 lambda + 1/                                                 
+
+                                            \
+                                           2|
+   + 1) (lambda + 2 - mu))^(1/2) sin(theta) |
+                                            /
+
+
+;
+> simplify(pde(0, 0, 0, r, theta, phi, t, omega, delta));
+                               0
+
+;
+> simplify(pde(1, 0, 0, r, theta, phi, t, omega, delta));
+                      1                      / (1/2)            
+- ------------------------------------------ |2      cos(omega t
+                           (1/2)             \                  
+            (7/2) /r omega\                2                    
+  Pi omega r      |-------|      sin(theta)                     
+                  \   c   /                                     
+
+            /    /r omega\              /r omega\  \ /          2
+   + delta) |-cos|-------| omega r + sin|-------| c| \cos(theta) 
+            \    \   c   /              \   c   /  /             
+
+      \\
+   - 1/|
+       /
+
+
+;
+> simplify(pde(1, 0, 1, r, theta, phi, t, omega, delta));
+                               0
+
+;
+> simplify(pde(1, 1, 1, r, theta, phi, t, omega, delta));
+                               0
+
+;
+> simplify(pde(1, 1, 0, r, theta, phi, t, omega, delta));
+                               0
+
+;
+> simplify(pde(0, 1, 1, r, theta, phi, t, omega, delta));
+           1             / (1/2)                            (1/2) 
+------------------------ |3      exp(I phi) (cos(theta) - 1)      
+                   (1/2) \                                        
+ (5/2)    /r omega\                                               
+r      Pi |-------|                                               
+          \   c   /                                               
+
+                  (1/2)                         /r omega\\
+  (cos(theta) + 1)      cos(omega t + delta) sin|-------||
+                                                \   c   //
+
+
+;
+> simplify(pde(0, 0, 1, r, theta, phi, t, omega, delta));
+                               0
+
+;
+> Typesetting[delayDotProduct]((Typesetting[delayDotProduct]((`Это`*`хорошо`) . `Значит`, `мы`, true)*`правильно`*`записали`*`решение`*`линейноговолнового`*`уравнения`) . `Потому`, `что`, true)*при*`подстановке`*его*в*`уравнение`*`мы`*`получили`*`ноль`;
+((Р­С‚Рѕ С…РѕСЂРѕС€Рѕ) . Р—РЅР°С‡РёС‚ РјС‹ РїСЂР°РІРёР»СЊРЅРѕ Р·Р°РїРёСЃР°Р»Рё СЂРµС€РµРЅРёРµ Р»РёРЅРµР№РЅРѕРіРѕРІРѕ\
+
+  Р»РЅРѕРІРѕРіРѕ СѓСЂР°РІРЅРµРЅРёСЏ) . РџРѕС‚РѕРјСѓ С‡С‚Рѕ РїСЂРё РїРѕРґСЃС‚Р°РЅРѕРІРєРµ РµРіРѕ РІ СѓСЂР°РІРЅРµРЅРёРµ РјС‹ РїРѕР»СѓС‡РёР»Рё РЅРѕР»СЊ
+
+
+;
+# Предположительно нейтрон.
+# Ниже эта процедура показана для самого простого случая
+# j=1 и m=0 . Как станет очевидно в будущем, исследовался
+# нейтрон (!). Но тогда мы этого ещё не знали.
+# Зависимость W0 от угловых координат отсутствует:
+> Wn := (k, r) -> (sin(r*k)/(r*k) - cos(r*k))/r;
+proc (k, r) options operator, arrow; (sin(k*r)/(k*r)-cos(k*r))/r\
+
+   end proc
+
+
+;
+> plot(Wn(1, r), r = 0 .. 100);
+
+> Wxk := (a, lambda, mu, r, theta, phi) -> BesselJ(a + 1/2, k*r)*SphericalY(lambda, mu, theta, phi)/sqrt(r);
+ proc (a, lambda, mu, r, theta, phi) options operator, arrow; 
+
+    BesselJ(a+1/2, k*r)*SphericalY(lambda, mu, theta, 
+
+    phi)/sqrt(r) end proc
+
+
+;
+> simplify(Wxk(1, 0, 0, r, theta, phi));
+                  (1/2)                          
+                 2      (cos(k r) k r - sin(k r))
+               - --------------------------------
+                        (3/2)         (1/2)      
+                     2 r      Pi (k r)      k    
+
+;
+> 
+;
+> sqrt(2)/(2*Pi*sqrt(k))*(sin(k*r)/(k*r) - cos(k*r))/r;
+                  (1/2) /            sin(k r)\
+                 2      |-cos(k r) + --------|
+                        \              k r   /
+                 -----------------------------
+                               (1/2)          
+                         2 Pi k      r        
+
+;
+> simplify(Wxk(1, 1, 1, r, theta, phi));
+           1             /                          
+------------------------ \(cos(k r) k r - sin(k r)) 
+   (3/2)         (1/2)                              
+2 r      Pi (k r)      k                            
+
+                  (1/2)                 (1/2)             (1/2)\
+  (cos(theta) + 1)      (cos(theta) - 1)      exp(I phi) 3     /
+
+
+;
+> 
+;
+> simplify(Wxk(0, 1, 1, r, theta, phi));
+               1            /                         (1/2) 
+   - ---------------------- \sin(k r) (cos(theta) + 1)      
+        (1/2)         (1/2)                                 
+     2 r      Pi (k r)                                      
+
+                     (1/2)             (1/2)\
+     (cos(theta) - 1)      exp(I phi) 3     /
+
+
+;
+> 
+;
+> 
+;
+> 
+;
+> 
+;
+> simplify(Wxk(0, 0, 0, r, theta, phi));
+                         (1/2)             
+                        2      sin(k r)    
+                     ----------------------
+                        (1/2)         (1/2)
+                     2 r      Pi (k r)     
+
+;
+# 
+# Теперь возьмём часть решения волновой функции, не зависящую от времени и проинтегрируем его энергию по пространству
+> Wx := (a, lambda, mu, r, theta, phi) -> BesselJ(a + 1/2, r*omega/c)*SphericalY(lambda, mu, theta, phi)/sqrt(r);
+ proc (a, lambda, mu, r, theta, phi) options operator, arrow; 
+
+    BesselJ(a+1/2, r*omega/c)*SphericalY(lambda, mu, theta, 
+
+    phi)/sqrt(r) end proc
+
+
+;
+> Wx1 := (a, lambda, mu, r, theta, phi) -> BesselJ(a + 1/2, r)*SphericalY(lambda, mu, theta, phi)/sqrt(r);
+proc (a, lambda, mu, r, theta, phi) options operator, arrow; 
+
+   BesselJ(a+1/2, r)*SphericalY(lambda, mu, theta, phi)/sqrt(r) 
+
+   end proc
+
+
+;
+> Wx1r := (a, lambda, mu, r, theta, phi) -> BesselJ(a + 1/2, r)*SphericalY(lambda, mu, theta, phi)/(r*sqrt(r));
+proc (a, lambda, mu, r, theta, phi) options operator, arrow; 
+
+   BesselJ(a+1/2, r)*SphericalY(lambda, mu, theta, phi)/(r*sqrt(\
+
+  r)) end proc
+
+
+;
+> evalf(int(abs(Wx1r(a, lambda, mu, r, theta, phi))^2*r^2*sin(theta), [theta = 0 .. Pi, phi = 0 .. 2*Pi, r = 0 .. infinity]));
+   /  /  /6.283185308   /3.141592654                               
+   |1 | |              |                                           
+int|- | |              |             |BesselJ(a + 0.5000000000, r) 
+   |r | |              |                                           
+   \  \/0.            /0.                                          
+
+                                                              \  
+                                                              |  
+  SphericalY(lambda, mu, theta, phi)|^2 sin(theta) dtheta dphi|, 
+                                                              |  
+                                                              /  
+
+                           \
+                           |
+  r = 0. .. Float(infinity)|
+                           |
+                           /
+
+
+;
+> int(abs(Wx1r(0, 0, 0, r, theta, phi))^2*r^2*sin(theta), [theta = 0 .. Pi, phi = 0 .. 2*Pi]);
+                           2               2
+                   2 sin(r)  signum(sin(r)) 
+                   -------------------------
+                           2          4     
+                       Pi r  signum(r)      
+
+;
+> int(abs(Wx1(0, 0, 0, r, theta, phi))^2*r^2*sin(theta), [theta = 0 .. Pi, phi = 0 .. 2*Pi]);
+                           2               2
+                   2 sin(r)  signum(sin(r)) 
+                   -------------------------
+                                     2      
+                         Pi signum(r)       
+
+;
+> 
+;
+> plot(int(abs(Wx1(0, 0, 0, r, theta, phi))^2*r^2*sin(theta), [theta = 0 .. Pi, phi = 0 .. 2*Pi]), r = -10*Pi .. 10*Pi);
+
+> plot(int(abs(Wx1(1, 0, 0, r, theta, phi))^2*r^2*sin(theta), [theta = 0 .. Pi, phi = 0 .. 2*Pi]), r = -10*Pi .. 10*Pi);
+
+> plot(int(abs(Wx1(1, 1, 0, r, theta, phi))^2*r^2*sin(theta), [theta = 0 .. Pi, phi = 0 .. 2*Pi]), r = -10*Pi .. 10*Pi);
+
+> plot(int(Im(Wx1(1, 1, 1, r, theta, phi))^2*r^2*sin(theta), [theta = 0 .. Pi, phi = 0 .. 2*Pi]), r = -10*Pi .. 10*Pi);
+
+> plot(int(Im(Wx1(1, 0, 1, r, theta, phi))^2*r^2*sin(theta), [theta = 0 .. Pi, phi = 0 .. 2*Pi]), r = -10*Pi .. 10*Pi);
+
+> plot(int(Im(Wx1(0, 1, 1, r, theta, phi))^2*r^2*sin(theta), [theta = 0 .. Pi, phi = 0 .. 2*Pi]), r = -10*Pi .. 10*Pi);
+
+> plot(int(Im(Wx1(0, 0, 1, r, theta, phi))^2*r^2*sin(theta), [theta = 0 .. Pi, phi = 0 .. 2*Pi]), r = -10*Pi .. 10*Pi);
+
+> evalf(int(abs(Wx1(1, 0, r, theta, phi))^2*r^2*sin(theta), [theta = 0 .. Pi, phi = 0 .. 2*Pi]));
+             /      2  2                                 2     \
+0.6366197722 \cos(r)  r  - 2. cos(r) sin(r) r - 1. cos(r)  + 1./
+----------------------------------------------------------------
+                                4                               
+                               r                                
+
+;
+> int(evalf(int(abs(Wx1(1, 0, r, theta, phi))^2*r^2*sin(theta), [theta = 0 .. Pi, phi = 0 .. 2*Pi])), r);
+ 0.1061032954 cos(2. r)                           0.3183098861
+ ---------------------- + 0.2122065907 Si(2. r) - ------------
+           r                                           r      
+
+      0.2122065907 sin(2. r)   0.1061032954 cos(2. r)
+    + ---------------------- + ----------------------
+                 2                        3          
+                r                        r           
+
+      0.1061032954
+    - ------------
+            3     
+           r      
+
+
+;
+> int(evalf(int(abs(Wx1(1, 0, r, theta, phi))^2*r^2*sin(theta), [theta = 0 .. Pi, phi = 0 .. 2*Pi])), r = 0 .. R);
+1  /             /             3              2                 
+-- \0.1061032954 \2. Si(2. R) R  + cos(2. R) R  + 2. sin(2. R) R
+ 3                                                              
+R                                                               
+
+         2                 \\
+   - 3. R  + cos(2. R) - 1.//
+
+
+;
+> plot(int(evalf(int(abs(Wx1(1, 0, r, theta, phi))^2*r^2*sin(theta), [theta = 0 .. Pi, phi = 0 .. 2*Pi])), r = 0 .. R), R = 0 .. 100);
+
+> plot(int(abs(Wx1(0, 0, r, theta, phi))^2*r^2*sin(theta), [theta = 0 .. Pi, phi = 0 .. 2*Pi]), r = -10*Pi .. 10*Pi);
+> plot(int(abs(Wx1(0, 3, r, theta, phi))^2*r^2*sin(theta), [theta = 0 .. Pi, phi = 0 .. 2*Pi]), r = -10*Pi .. 10*Pi);
+
+> 
+;
+# 
+> int(abs(Wx(0, 0, r, theta, phi))^2*r^2*sin(theta), [theta = 0 .. Pi, phi = 0 .. 2*Pi, r = 0 .. infinity]);
+                         /    /   /
+                         |    |   |
+                         |    |   |
+            1            |    |   |
+  ---------------------- |2 c |int|
+           /omega\       |    |   |
+  Pi signum|-----| omega \    \   \
+           \  c  /                 
+
+                2                     2                   \\\
+       /r omega\        /   /r omega\\                    |||
+    sin|-------|  signum|sin|-------||                    |||
+       \   c   /        \   \   c   //                    |||
+    -----------------------------------, r = 0 .. infinity|||
+                     2                                    |||
+                    r                                     ///
+
+
+;
+> int(abs(Wx(1, 0, r, theta, phi))^2*r^2*sin(theta), [theta = 0 .. Pi, phi = 0 .. 2*Pi, r = 0 .. infinity]);
+                1     /I omega\   1     / I c \
+                - csgn|-------| + - csgn|-----|
+                6     \   c   /   6     \omega/
+
+;
+> 
+;
+> int(abs(Wx(0, 1, r, theta, phi))^2*r^2*sin(theta), [theta = 0 .. Pi, phi = 0 .. 2*Pi, r = 0 .. infinity]);
+                           undefined
+
+;
+> 
+;
+> help("signum");
+> 
+;
+> 
+;
+> int(SphericalY(0, 0, theta, phi)^2, [phi = 0 .. 2*Pi, theta = 0 .. Pi]);
+                              1   
+                              - Pi
+                              2   
+
+;
+> int(SphericalY(1, 0, theta, phi)^2, [phi = 0 .. 2*Pi, theta = 0 .. Pi]);
+                              3   
+                              - Pi
+                              4   
+
+;
+> int(SphericalY(1, 1, theta, phi)^2, [phi = 0 .. 2*Pi, theta = 0 .. Pi]);
+                               0
+
+;
+> int(SphericalY(0, 1, theta, phi)^2, [phi = 0 .. 2*Pi, theta = 0 .. Pi]);
+                               0
+
+;
+> 
+;
+> 
+;
+> 
+;
+> int(BesselJ(1 + 1/2, r)^2/r, r = 0 .. infinity);
+                               1
+                               -
+                               3
+
+;
+> 
+;
+> 
+;
+> 
+;
+> 
+;
+> int(Wx(0, 0, r, theta, phi)^2, [phi = 0 .. 2*Pi, theta = 0 .. Pi, r = 0 .. infinity]);
+               1    /    /I omega\       / I c \\
+               - Pi |csgn|-------| + csgn|-----||
+               4    \    \   c   /       \omega//
+
+;
+> int(Wx(1, 0, r, theta, phi)^2, [phi = 0 .. 2*Pi, theta = 0 .. Pi, r = 0 .. infinity]);
+               1    /    /I omega\       / I c \\
+               - Pi |csgn|-------| + csgn|-----||
+               8    \    \   c   /       \omega//
+
+;
+> int(Wx(1, 1, r, theta, phi)^2, [phi = 0 .. 2*Pi, theta = 0 .. Pi, r = 0 .. infinity]);
+                           undefined
+
+;
+> int(Wx(0, 1, r, theta, phi)^2, [phi = 0 .. 2*Pi, theta = 0 .. Pi, r = 0 .. infinity]);
+                           undefined
+
+;
+> 
+;
+> 
+;
+> 
+;
+> 
+;
+> 
+;
+> simplify(int(Wx(0, 0, r, theta, phi)^2, [phi = 0 .. 2*Pi, theta = 0 .. Pi, r = 0 .. infinity]));
+               1    /    /I omega\       / I c \\
+               - Pi |csgn|-------| + csgn|-----||
+               4    \    \   c   /       \omega//
+
+;
+> 
+;
+> 
+;
+> 
+;
+> 
+;
+> 
+;
+> 
+;
+# Теперь попробуем учесть так называемый закон наматывания
+# 
+> 
+;
+> 
+;
+> 
+;
+> 
+;
+> 
+;
+> 
+;
+> help("BesselJ");
+Error, 
+                           ? BesselJ
+
+;
+> 
+;
